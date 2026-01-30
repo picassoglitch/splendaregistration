@@ -18,7 +18,7 @@ export async function GET() {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anon) return NextResponse.json(DEFAULT_CONFIG);
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("app_config")
     .select("config")
@@ -30,7 +30,7 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
