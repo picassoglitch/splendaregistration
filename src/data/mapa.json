@@ -1,0 +1,33 @@
+[
+  {
+    "id": "zona-registro",
+    "title": "Registro",
+    "type": "zona",
+    "description": "Punto de llegada. Recoge tu gafete y pregunta por horarios o logística."
+  },
+  {
+    "id": "encuentro-info",
+    "title": "Punto de encuentro",
+    "type": "encuentro",
+    "description": "Nos vemos aquí si te separas de tu grupo. Ideal para re-encuentro y coordinación."
+  },
+  {
+    "id": "salon-1",
+    "title": "Salón 1 · Plenario",
+    "type": "salon-break",
+    "description": "Sesiones principales. Llega 5–10 min antes para asegurar lugar."
+  },
+  {
+    "id": "sala-a",
+    "title": "Sala A · Expositores",
+    "type": "salon-break",
+    "description": "Demos y sesiones de expositores. Pregunta por horarios y disponibilidad."
+  },
+  {
+    "id": "zona-breaks",
+    "title": "Zona de breaks",
+    "type": "salon-break",
+    "description": "Café, snacks y networking. Mantén tu badge visible."
+  }
+]
+

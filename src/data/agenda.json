@@ -1,0 +1,63 @@
+[
+  {
+    "id": "plenario-apertura",
+    "title": "Apertura · Swat & Smart 2026",
+    "startTime": "09:00",
+    "endTime": "09:30",
+    "day": "2026-01-30",
+    "track": "Plenario",
+    "location": "Salón 1",
+    "description": "Bienvenida oficial y overview del día. Presentación de agenda, logística y mensajes clave del evento.\n\nSugerencia: llega 10 min antes para registro y ubicación."
+  },
+  {
+    "id": "expo-keynote",
+    "title": "Keynote · Tendencias y casos de éxito",
+    "startTime": "09:30",
+    "endTime": "10:15",
+    "day": "2026-01-30",
+    "track": "Expositores",
+    "location": "Salón 1",
+    "description": "Una sesión inspiradora con aprendizajes prácticos y ejemplos reales.\n\nSe cubrirán 3 pilares: estrategia, ejecución y medición."
+  },
+  {
+    "id": "break-cafe",
+    "title": "Coffee break · Networking",
+    "startTime": "10:15",
+    "endTime": "10:45",
+    "day": "2026-01-30",
+    "track": "Otros",
+    "location": "Lobby",
+    "description": "Café, snacks y espacio para conectar con otros asistentes.\n\nTip: revisa el mapa para ubicar zonas clave."
+  },
+  {
+    "id": "plenario-panel",
+    "title": "Panel · Innovación aplicada",
+    "startTime": "10:45",
+    "endTime": "11:30",
+    "day": "2026-01-30",
+    "track": "Plenario",
+    "location": "Salón 1",
+    "description": "Conversación moderada con líderes invitados.\n\nSe abordarán retos y oportunidades 2026."
+  },
+  {
+    "id": "expo-demo",
+    "title": "Demo · Soluciones y activaciones",
+    "startTime": "11:30",
+    "endTime": "12:15",
+    "day": "2026-01-30",
+    "track": "Expositores",
+    "location": "Sala A",
+    "description": "Demostración guiada con puntos concretos: setup, flujo y resultados.\n\nIncluye espacio para Q&A."
+  },
+  {
+    "id": "otros-cierre",
+    "title": "Cierre · Próximos pasos",
+    "startTime": "12:15",
+    "endTime": "12:30",
+    "day": "2026-01-30",
+    "track": "Otros",
+    "location": "Salón 1",
+    "description": "Resumen, agradecimientos y recordatorios.\n\nSoporte disponible por WhatsApp."
+  }
+]
+
