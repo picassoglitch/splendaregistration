@@ -130,7 +130,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       </>
                     ) : (
                       <>
-                        {role === "super_admin" ? (
+                        {role === "super_admin" || role === "admin" ? (
                           <Link
                             href="/admin"
                             className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 text-white font-semibold shadow-sm hover:bg-brand-700 active:bg-brand-800"

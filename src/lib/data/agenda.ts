@@ -9,7 +9,8 @@ export function getAgendaItems(): AgendaItem[] {
 }
 
 export function getAgendaItem(id: string): AgendaItem | null {
-  return getAgendaItems().find((x) => x.id === id) ?? null;
+  const key = decodeURIComponent(id).trim().toLowerCase();
+  return getAgendaItems().find((x) => x.id.toLowerCase() === key) ?? null;
 }
 
 export const TRACKS: Track[] = ["Plenario", "Expositores", "Otros"];

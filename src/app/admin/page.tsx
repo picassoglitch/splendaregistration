@@ -27,7 +27,7 @@ export default async function AdminPage() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "super_admin") redirect("/home");
+  if (profile?.role !== "super_admin" && profile?.role !== "admin") redirect("/home");
 
   return <AdminClient />;
 }

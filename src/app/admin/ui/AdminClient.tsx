@@ -7,12 +7,15 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { EventLogo } from "@/components/branding/EventLogo";
 import { DEFAULT_CONFIG, type AppConfig, writeConfig } from "@/lib/content/appConfig";
 import { useAppConfig } from "@/lib/content/useAppConfig";
+import { Tabs } from "@/components/ui/Tabs";
+import { AgendaAdmin } from "@/app/admin/ui/AgendaAdmin";
 
 export function AdminClient() {
   const cfg = useAppConfig();
   const [draft, setDraft] = useState<AppConfig>(cfg);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [tab, setTab] = useState<"branding" | "agenda">("branding");
 
   useEffect(() => {
     setDraft(cfg);
@@ -56,6 +59,24 @@ export function AdminClient() {
             <EventLogo logoUrl={draft.logoUrl} size={56} />
           </div>
 
+          <div className="mt-6">
+            <Tabs
+              value={tab}
+              onChange={setTab}
+              options={[
+                { value: "branding", label: "Branding" },
+                { value: "agenda", label: "Agenda" },
+              ]}
+            />
+          </div>
+
+          {tab === "agenda" ? (
+            <div className="mt-4">
+              <AgendaAdmin />
+            </div>
+          ) : null}
+
+          {tab === "branding" ? (
           <div className="mt-6 grid gap-4">
             <Input
               label="Event name (título)"
@@ -152,6 +173,7 @@ export function AdminClient() {
               </div>
             ) : null}
           </div>
+          ) : null}
         </Card>
       </div>
     </div>
