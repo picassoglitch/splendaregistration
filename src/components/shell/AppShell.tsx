@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { profile, logout } = useAuth();
   const cfg = useAppConfig();
-  const { me, loading, refetch } = useMe();
+  const { role, loading, refetch } = useMe();
 
   const title = titleForPath(pathname);
   const isDetail = pathname.startsWith("/agenda/");
@@ -99,7 +99,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <div>
                         Rol:{" "}
                         <span className="font-extrabold text-zinc-800">
-                          {loading ? "cargando…" : (me.role ?? "—")}
+                          {loading ? "cargando…" : (role ?? "—")}
                         </span>
                       </div>
                       <button
@@ -130,7 +130,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       </>
                     ) : (
                       <>
-                        {me.role === "super_admin" ? (
+                        {role === "super_admin" ? (
                           <Link
                             href="/admin"
                             className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 text-white font-semibold shadow-sm hover:bg-brand-700 active:bg-brand-800"

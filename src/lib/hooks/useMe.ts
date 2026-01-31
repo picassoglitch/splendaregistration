@@ -3,12 +3,18 @@
 import { useEffect, useState } from "react";
 
 export type MeResponse = {
-  user: { id: string; email?: string | null } | null;
-  role: "user" | "admin" | "super_admin" | null;
+  user: {
+    id: string;
+    email?: string | null;
+    full_name?: string | null;
+    role?: "user" | "admin" | "super_admin" | null;
+  } | null;
+  profileMissing?: boolean | null;
+  error?: string;
 };
 
 export function useMe() {
-  const [me, setMe] = useState<MeResponse>({ user: null, role: null });
+  const [me, setMe] = useState<MeResponse>({ user: null });
   const [loading, setLoading] = useState(true);
 
   const fetchMe = async (signal?: AbortSignal) => {
@@ -28,7 +34,7 @@ export function useMe() {
       try {
         await fetchMe(controller.signal);
       } catch {
-        if (!cancelled) setMe({ user: null, role: null });
+        if (!cancelled) setMe({ user: null });
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -42,6 +48,8 @@ export function useMe() {
 
   return {
     me,
+    role: me.user?.role ?? null,
+    profileMissing: Boolean(me.profileMissing),
     loading,
     refetch: async () => {
       setLoading(true);
