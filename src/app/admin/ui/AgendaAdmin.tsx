@@ -24,6 +24,7 @@ export function AgendaAdmin() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Track>("Plenario");
   const [editing, setEditing] = useState<AgendaRow | null>(null);
+  const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -50,12 +51,34 @@ export function AgendaAdmin() {
     if (!editing) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/agenda/${editing.id}`, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(editing),
-      });
+      const res = isNew
+        ? await fetch(`/api/admin/agenda`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(editing),
+          })
+        : await fetch(`/api/admin/agenda/${editing.id}`, {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(editing),
+          });
       if (!res.ok) throw new Error("save failed");
+      await load();
+      setEditing(null);
+      setIsNew(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async () => {
+    if (!editing || isNew) return;
+    const ok = confirm("¿Eliminar este evento? Esta acción no se puede deshacer.");
+    if (!ok) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/agenda/${editing.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
       await load();
       setEditing(null);
     } finally {
@@ -63,12 +86,42 @@ export function AgendaAdmin() {
     }
   };
 
+  const newItem = () => {
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `evt-${Date.now()}`;
+    const today = new Date().toISOString().slice(0, 10);
+    setEditing({
+      id,
+      title: "",
+      day: today,
+      start_time: "09:00",
+      end_time: "09:30",
+      track: filter,
+      location: "",
+      description: "",
+    });
+    setIsNew(true);
+  };
+
   return (
     <div className="grid gap-4">
       <Card className="p-4">
-        <div className="text-[14px] font-extrabold text-zinc-900">Agenda</div>
-        <div className="mt-1 text-[13px] font-semibold text-zinc-600">
-          Edita sesiones y categorías: Plenario / Expositores / Otros.
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-[14px] font-extrabold text-zinc-900">Agenda</div>
+            <div className="mt-1 text-[13px] font-semibold text-zinc-600">
+              Edita sesiones y categorías: Plenario / Expositores / Otros.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="inline-flex h-10 items-center justify-center rounded-2xl bg-brand-600 px-4 text-[13px] font-extrabold text-white shadow-sm hover:bg-brand-700 active:bg-brand-800"
+            onClick={newItem}
+          >
+            Nuevo
+          </button>
         </div>
         <div className="mt-4">
           <Tabs
@@ -122,12 +175,15 @@ export function AgendaAdmin() {
         <Card className="p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="text-[14px] font-extrabold text-zinc-900">
-              Editar evento
+              {isNew ? "Nuevo evento" : "Editar evento"}
             </div>
             <button
               type="button"
               className="rounded-xl px-3 py-2 text-[13px] font-semibold text-zinc-600 hover:bg-zinc-900/5"
-              onClick={() => setEditing(null)}
+              onClick={() => {
+                setEditing(null);
+                setIsNew(false);
+              }}
             >
               Cerrar
             </button>
@@ -193,11 +249,17 @@ export function AgendaAdmin() {
 
             <div className="grid gap-2 sm:grid-cols-2">
               <PrimaryButton onClick={save} isLoading={saving}>
-                Guardar
+                {isNew ? "Crear" : "Guardar"}
               </PrimaryButton>
-              <PrimaryButton variant="secondary" onClick={load}>
-                Recargar
-              </PrimaryButton>
+              {isNew ? (
+                <PrimaryButton variant="secondary" onClick={load}>
+                  Recargar
+                </PrimaryButton>
+              ) : (
+                <PrimaryButton variant="secondary" onClick={remove} isLoading={saving}>
+                  Eliminar
+                </PrimaryButton>
+              )}
             </div>
           </div>
         </Card>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Image as ImageIcon, Clock3, MapPin } from "lucide-react";
 import { getAgendaItem } from "@/lib/data/agenda";
+import { getAgendaItemSupabase } from "@/lib/data/agendaSupabase";
 import { Card } from "@/components/ui/Card";
 import { FavoriteToggle } from "@/components/agenda/FavoriteToggle";
 
@@ -8,12 +9,14 @@ export const metadata = {
   title: "Detalle",
 };
 
-export default function AgendaDetailPage({
+export default async function AgendaDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const item = getAgendaItem(params.id);
+  // Prefer Supabase so admin edits reflect live; fallback to local JSON.
+  const itemFromDb = await getAgendaItemSupabase(params.id);
+  const item = itemFromDb ?? getAgendaItem(params.id);
   if (!item) return notFound();
 
   const time = `${item.startTime} — ${item.endTime}`;
