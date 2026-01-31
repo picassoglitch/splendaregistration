@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { profile, logout } = useAuth();
   const cfg = useAppConfig();
-  const { me } = useMe();
+  const { me, loading, refetch } = useMe();
 
   const title = titleForPath(pathname);
   const isDetail = pathname.startsWith("/agenda/");
@@ -72,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex w-12 items-center justify-end">
-            <Dialog.Root>
+            <Dialog.Root onOpenChange={(open) => open && refetch()}>
               <Dialog.Trigger asChild>
                 <button
                   type="button"
@@ -93,6 +93,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       ? `${profile.name} · ${profile.email}`
                       : "Puedes registrarte o entrar para personalizar (opcional)."}
                   </Dialog.Description>
+
+                  {profile ? (
+                    <div className="mt-2 flex items-center justify-between gap-3 text-[12px] font-semibold text-zinc-500">
+                      <div>
+                        Rol:{" "}
+                        <span className="font-extrabold text-zinc-800">
+                          {loading ? "cargando…" : (me.role ?? "—")}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="rounded-xl px-3 py-2 hover:bg-zinc-900/5 active:bg-zinc-900/10"
+                        onClick={refetch}
+                      >
+                        Actualizar
+                      </button>
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 grid gap-2">
                     {!profile ? (
