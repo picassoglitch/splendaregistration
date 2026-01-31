@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { CalendarDays, ChevronLeft, Home, MapPin, User } from "lucide-react";
+import { CalendarDays, ChevronLeft, Home, MapPin, Shield, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/components/auth/AuthProvider";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -27,6 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const title = titleForPath(pathname);
   const isDetail = pathname.startsWith("/agenda/");
+  const showAdmin = role === "super_admin" || role === "admin";
 
   return (
     <div className="min-h-dvh">
@@ -182,7 +183,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           paddingRight: "max(14px, var(--sar))",
         }}
       >
-        <div className="grid grid-cols-3 gap-2 px-2 py-2">
+        <div className={cn("grid gap-2 px-2 py-2", showAdmin ? "grid-cols-4" : "grid-cols-3")}>
           <BottomNavItem
             href="/home"
             active={pathname === "/home"}
@@ -201,6 +202,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             label="Mapa"
             icon={<MapPin className="h-5 w-5" />}
           />
+          {showAdmin ? (
+            <BottomNavItem
+              href="/admin"
+              active={pathname === "/admin"}
+              label="Admin"
+              icon={<Shield className="h-5 w-5" />}
+            />
+          ) : null}
         </div>
       </nav>
     </div>

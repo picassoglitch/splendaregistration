@@ -9,17 +9,36 @@ import { DEFAULT_CONFIG, type AppConfig, writeConfig } from "@/lib/content/appCo
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { Tabs } from "@/components/ui/Tabs";
 import { AgendaAdmin } from "@/app/admin/ui/AgendaAdmin";
+import { UsersAdmin } from "@/app/admin/ui/UsersAdmin";
+import { useMe } from "@/lib/hooks/useMe";
 
 export function AdminClient() {
   const cfg = useAppConfig();
+  const { role, loading: roleLoading } = useMe();
+  const isSuperAdmin = role === "super_admin";
+
   const [draft, setDraft] = useState<AppConfig>(cfg);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [tab, setTab] = useState<"branding" | "agenda">("branding");
+  const [tab, setTab] = useState<"branding" | "agenda" | "users">("branding");
 
   useEffect(() => {
     setDraft(cfg);
   }, [cfg]);
+
+  const tabOptions = useMemo(() => {
+    const opts: Array<{ value: "branding" | "agenda" | "users"; label: string }> = [];
+    if (isSuperAdmin) opts.push({ value: "branding", label: "Branding" });
+    opts.push({ value: "agenda", label: "Agenda" });
+    opts.push({ value: "users", label: "Usuarios" });
+    return opts;
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (roleLoading) return;
+    const allowed = new Set(tabOptions.map((o) => o.value));
+    if (!allowed.has(tab)) setTab(isSuperAdmin ? "branding" : "agenda");
+  }, [roleLoading, isSuperAdmin, tab, tabOptions]);
 
   const canSave = useMemo(() => Boolean(draft.eventName.trim()), [draft.eventName]);
 
@@ -50,10 +69,12 @@ export function AdminClient() {
                 Admin
               </div>
               <div className="mt-1 text-[18px] font-extrabold text-zinc-900">
-                Contenido & Branding
+                {isSuperAdmin ? "Contenido & Branding" : "Administración"}
               </div>
               <div className="mt-1 text-[13px] font-semibold text-zinc-600">
-                Cambios se guardan en Supabase (y se reflejan en toda la app).
+                {isSuperAdmin
+                  ? "Cambios se guardan en Supabase (y se reflejan en toda la app)."
+                  : "Agenda y usuarios (export). Cambios se guardan en Supabase."}
               </div>
             </div>
             <EventLogo logoUrl={draft.logoUrl} size={56} />
@@ -63,16 +84,19 @@ export function AdminClient() {
             <Tabs
               value={tab}
               onChange={setTab}
-              options={[
-                { value: "branding", label: "Branding" },
-                { value: "agenda", label: "Agenda" },
-              ]}
+              options={tabOptions}
             />
           </div>
 
           {tab === "agenda" ? (
             <div className="mt-4">
               <AgendaAdmin />
+            </div>
+          ) : null}
+
+          {tab === "users" ? (
+            <div className="mt-4">
+              <UsersAdmin canEditRoles={isSuperAdmin} />
             </div>
           ) : null}
 
