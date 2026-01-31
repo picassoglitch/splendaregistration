@@ -32,15 +32,11 @@ export default function SuccessPage({
           <div className="mt-2 text-center text-[13px] font-semibold text-zinc-600">
             {email
               ? `Te enviamos un enlace de confirmación a ${email}. Abre tu correo, confirma y vuelve a iniciar sesión.`
-              : "Listo. Ya puedes navegar Agenda y Mapa."}
+              : "Listo. Ahora inicia sesión para entrar a la app."}
           </div>
 
           <div className="mt-6 grid gap-3">
-            {email ? (
-              <PrimaryLinkButton href="/">Ir a iniciar sesión</PrimaryLinkButton>
-            ) : (
-              <PrimaryLinkButton href="/home">Continuar</PrimaryLinkButton>
-            )}
+            <PrimaryLinkButton href="/">Ir a iniciar sesión</PrimaryLinkButton>
             <Link
               href="/"
               className="text-center text-[13px] font-semibold text-zinc-600 hover:text-zinc-900"

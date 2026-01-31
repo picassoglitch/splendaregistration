@@ -44,6 +44,24 @@ export function LoginForm({ showRegisterLink = true }: { showRegisterLink?: bool
         setErrors({ password: "No pudimos iniciar sesión. Revisa tus datos." });
         return;
       }
+
+      // Extra safety: if user somehow signs in but is unconfirmed, bounce them back out.
+      const {
+        data: { user },
+      } = await supabase!.auth.getUser();
+      const confirmed = Boolean(
+        (user as { email_confirmed_at?: string | null; confirmed_at?: string | null } | null)
+          ?.email_confirmed_at ||
+          (user as { email_confirmed_at?: string | null; confirmed_at?: string | null } | null)
+            ?.confirmed_at,
+      );
+      if (!confirmed) {
+        await supabase!.auth.signOut();
+        setErrors({
+          email: "Tu correo no está confirmado. Revisa tu bandeja de entrada.",
+        });
+        return;
+      }
       router.push("/home");
     } finally {
       setLoading(false);

@@ -56,9 +56,16 @@ export default function RegisterPage() {
         return;
       }
 
-      // If confirm-email is enabled, session may be null; show “check your email”.
-      if (data.session) router.push("/home");
-      else router.push(`/success?email=${encodeURIComponent(email.trim())}`);
+      // Do not allow immediate app access after registration.
+      // If confirm-email is enabled, session is null (ideal). If not, we sign out anyway.
+      if (data.session) {
+        try {
+          await supabase!.auth.signOut();
+        } catch {
+          // ignore
+        }
+      }
+      router.push(`/success?email=${encodeURIComponent(email.trim())}`);
     } finally {
       setLoading(false);
     }

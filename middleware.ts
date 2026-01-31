@@ -1,6 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+type SupabaseUserLike = { email?: string | null; email_confirmed_at?: string | null; confirmed_at?: string | null };
+
+function isEmailConfirmed(user: SupabaseUserLike | null | undefined) {
+  return Boolean(user?.email_confirmed_at || user?.confirmed_at);
+}
+
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
@@ -22,7 +28,28 @@ export async function middleware(req: NextRequest) {
   });
 
   // refresh session if needed
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Protect app routes: require logged-in + confirmed email
+  const { pathname } = req.nextUrl;
+  const isProtected =
+    pathname === "/home" ||
+    pathname.startsWith("/agenda") ||
+    pathname.startsWith("/mapa") ||
+    pathname.startsWith("/admin");
+
+  if (isProtected) {
+    if (!user || !isEmailConfirmed(user)) {
+      const login = new URL("/", req.url);
+      if (user?.email && !isEmailConfirmed(user)) {
+        login.searchParams.set("unconfirmed", "1");
+        login.searchParams.set("email", user.email);
+      }
+      return NextResponse.redirect(login);
+    }
+  }
 
   return res;
 }
