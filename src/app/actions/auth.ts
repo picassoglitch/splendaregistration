@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAppBaseUrl } from "@/lib/url";
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -49,10 +50,11 @@ export async function registerAction(input: {
   if (!password) return { ok: false as const, error: "Ingresa una contraseña." };
 
   const supabase = await createSupabaseServerClient();
+  const emailRedirectTo = `${getAppBaseUrl()}/auth/callback`;
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName } },
+    options: { data: { full_name: fullName }, emailRedirectTo },
   });
   if (error) {
     return {

@@ -1,9 +1,10 @@
 "use client";
 
-import { LoginForm } from "@/components/auth/LoginForm";
 import { SupportFooter } from "@/components/SupportFooter";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
+import { Suspense } from "react";
+import { LandingClient } from "@/app/LandingClient";
 
 export default function Home() {
   const cfg = useAppConfig();
@@ -33,7 +34,9 @@ export default function Home() {
           </div>
 
           <div className="mt-8 w-full max-w-[420px]">
-            <LoginForm />
+            <Suspense fallback={<div />}>
+              <LandingClient />
+            </Suspense>
           </div>
         </div>
 
