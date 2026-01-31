@@ -32,7 +32,12 @@ export async function GET() {
     if (profileError) {
       console.error("[/api/me] profiles select error:", profileError);
       return NextResponse.json(
-        { error: "Failed to load profile." },
+        {
+          error: "Failed to load profile.",
+          errorCode: profileError.code ?? null,
+          // Safe debugging (no secrets). Helps identify RLS/privilege issues quickly.
+          errorHint: profileError.message ?? null,
+        },
         { status: 500, headers: { "cache-control": "no-store" } },
       );
     }
