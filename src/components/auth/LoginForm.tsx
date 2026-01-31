@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { loginAction } from "@/app/actions/auth";
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -14,19 +13,14 @@ function isValidEmail(email: string) {
 
 export function LoginForm({ showRegisterLink = true }: { showRegisterLink?: boolean }) {
   const router = useRouter();
-  const { supabaseEnabled } = useAuth();
-  const supabase = useMemo(() => getSupabaseClient(), []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const submit = async () => {
     const nextErrors: Record<string, string> = {};
-    if (!supabaseEnabled || !supabase) {
-      nextErrors.email = "Supabase no está configurado (faltan variables de entorno).";
-    }
     if (!email.trim()) nextErrors.email = "Ingresa tu correo.";
     else if (!isValidEmail(email)) nextErrors.email = "Correo inválido.";
     if (!password) nextErrors.password = "Ingresa tu contraseña.";
@@ -34,38 +28,14 @@ export function LoginForm({ showRegisterLink = true }: { showRegisterLink?: bool
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
-    setLoading(true);
-    try {
-      const { error } = await supabase!.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) {
-        setErrors({ password: "No pudimos iniciar sesión. Revisa tus datos." });
-        return;
-      }
-
-      // Extra safety: if user somehow signs in but is unconfirmed, bounce them back out.
-      const {
-        data: { user },
-      } = await supabase!.auth.getUser();
-      const confirmed = Boolean(
-        (user as { email_confirmed_at?: string | null; confirmed_at?: string | null } | null)
-          ?.email_confirmed_at ||
-          (user as { email_confirmed_at?: string | null; confirmed_at?: string | null } | null)
-            ?.confirmed_at,
-      );
-      if (!confirmed) {
-        await supabase!.auth.signOut();
-        setErrors({
-          email: "Tu correo no está confirmado. Revisa tu bandeja de entrada.",
-        });
+    startTransition(async () => {
+      const res = await loginAction({ email, password });
+      if (!res.ok) {
+        setErrors({ email: res.error });
         return;
       }
       router.push("/home");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -91,7 +61,7 @@ export function LoginForm({ showRegisterLink = true }: { showRegisterLink?: bool
         />
 
         <div className="pt-2">
-          <PrimaryButton onClick={submit} isLoading={loading} size="md">
+          <PrimaryButton onClick={submit} isLoading={isPending} size="md">
             Entrar
           </PrimaryButton>
         </div>

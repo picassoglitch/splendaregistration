@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { registerAction } from "@/app/actions/auth";
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -13,14 +13,13 @@ function isValidEmail(email: string) {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const supabase = useMemo(() => getSupabaseClient(), []);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const submit = async () => {
     const nextErrors: Record<string, string> = {};
@@ -32,43 +31,22 @@ export default function RegisterPage() {
     if (password && confirm && password !== confirm) {
       nextErrors.confirm = "Las contraseñas no coinciden.";
     }
-    if (!supabase) nextErrors.email = "Supabase no está configurado.";
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
-    setLoading(true);
-    try {
-      const { data, error } = await supabase!.auth.signUp({
-        email: email.trim(),
+    startTransition(async () => {
+      const res = await registerAction({
+        fullName: name,
+        email,
         password,
-        options: {
-          data: {
-            full_name: name.trim(),
-          },
-        },
       });
-      if (error) {
-        setErrors({
-          email:
-            "No pudimos registrarte. Verifica el correo o intenta más tarde.",
-        });
+      if (!res.ok) {
+        setErrors({ email: res.error });
         return;
       }
-
-      // Do not allow immediate app access after registration.
-      // If confirm-email is enabled, session is null (ideal). If not, we sign out anyway.
-      if (data.session) {
-        try {
-          await supabase!.auth.signOut();
-        } catch {
-          // ignore
-        }
-      }
-      router.push(`/success?email=${encodeURIComponent(email.trim())}`);
-    } finally {
-      setLoading(false);
-    }
+      router.push(`/success?email=${encodeURIComponent(res.email ?? email.trim())}`);
+    });
   };
 
   return (
@@ -118,7 +96,7 @@ export default function RegisterPage() {
             />
 
             <div className="pt-2">
-              <PrimaryButton onClick={submit} isLoading={loading} size="md">
+              <PrimaryButton onClick={submit} isLoading={isPending} size="md">
                 Registrarse
               </PrimaryButton>
             </div>
