@@ -4,15 +4,6 @@ import { DEFAULT_CONFIG, type AppConfig } from "@/lib/content/appConfig";
 
 const CONFIG_ID = "default";
 
-function adminAllowed(email?: string | null) {
-  const allow = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  if (!allow.length) return false;
-  return email ? allow.includes(email.toLowerCase()) : false;
-}
-
 export async function GET() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -35,8 +26,18 @@ export async function PUT(req: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !adminAllowed(user.email)) {
+  if (!user) {
     return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "super_admin") {
+    return new NextResponse("Forbidden", { status: 403 });
   }
 
   const body = (await req.json()) as Partial<AppConfig>;

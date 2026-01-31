@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
+import { useMe } from "@/lib/hooks/useMe";
 
 function titleForPath(pathname: string) {
   if (pathname.startsWith("/agenda/")) return "Detalle";
@@ -22,6 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { profile, logout } = useAuth();
   const cfg = useAppConfig();
+  const { me } = useMe();
 
   const title = titleForPath(pathname);
   const isDetail = pathname.startsWith("/agenda/");
@@ -109,16 +111,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         </Link>
                       </>
                     ) : (
-                      <button
-                        type="button"
-                        className="inline-flex h-12 items-center justify-center rounded-2xl bg-white text-zinc-900 font-semibold ring-1 ring-border hover:bg-zinc-50 active:bg-zinc-100"
-                        onClick={async () => {
-                          await logout();
-                          router.push("/");
-                        }}
-                      >
-                        Cerrar sesión
-                      </button>
+                      <>
+                        {me.role === "super_admin" ? (
+                          <Link
+                            href="/admin"
+                            className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 text-white font-semibold shadow-sm hover:bg-brand-700 active:bg-brand-800"
+                          >
+                            Panel Admin
+                          </Link>
+                        ) : null}
+                        <button
+                          type="button"
+                          className="inline-flex h-12 items-center justify-center rounded-2xl bg-white text-zinc-900 font-semibold ring-1 ring-border hover:bg-zinc-50 active:bg-zinc-100"
+                          onClick={async () => {
+                            await logout();
+                            router.push("/");
+                          }}
+                        >
+                          Cerrar sesión
+                        </button>
+                      </>
                     )}
                   </div>
 
