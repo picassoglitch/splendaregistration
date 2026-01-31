@@ -1,7 +1,8 @@
 /* Minimal offline cache for a small event companion PWA.
    Replace/extend with Workbox later if desired. */
 
-const CACHE_NAME = "ss2026-v1";
+// Bump this to invalidate older caches on deploys.
+const CACHE_NAME = "ss2026-v2";
 const CORE_ASSETS = ["/", "/home", "/agenda", "/mapa", "/privacidad"];
 
 self.addEventListener("install", (event) => {
@@ -34,6 +35,12 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  // Never cache API responses (roles/config/auth gating must always be fresh)
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(req));
+    return;
+  }
 
   // Network-first for navigation so content updates when online.
   const isNavigation = req.mode === "navigate";
