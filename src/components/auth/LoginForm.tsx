@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { loginAction } from "@/app/actions/auth";
@@ -12,8 +11,6 @@ function isValidEmail(email: string) {
 }
 
 export function LoginForm({ showRegisterLink = true }: { showRegisterLink?: boolean }) {
-  const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,7 +31,8 @@ export function LoginForm({ showRegisterLink = true }: { showRegisterLink?: bool
         setErrors({ email: res.error });
         return;
       }
-      router.push("/home");
+      // Full navigation so newly set auth cookies are definitely applied in production.
+      window.location.assign("/home");
     });
   };
 

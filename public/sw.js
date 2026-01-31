@@ -2,8 +2,9 @@
    Replace/extend with Workbox later if desired. */
 
 // Bump this to invalidate older caches on deploys.
-const CACHE_NAME = "ss2026-v2";
-const CORE_ASSETS = ["/", "/home", "/agenda", "/mapa", "/privacidad"];
+const CACHE_NAME = "ss2026-v3";
+// Only cache public pages (protected pages depend on auth/session)
+const CORE_ASSETS = ["/", "/register", "/success", "/privacidad"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -49,8 +50,11 @@ self.addEventListener("fetch", (event) => {
       (async () => {
         try {
           const fresh = await fetch(req);
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(req, fresh.clone());
+          // Avoid caching redirects/failed responses (common with auth-protected routes)
+          if (fresh.ok && fresh.type !== "opaqueredirect") {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(req, fresh.clone());
+          }
           return fresh;
         } catch {
           const cached = await caches.match(req);

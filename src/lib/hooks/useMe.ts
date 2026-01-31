@@ -12,7 +12,11 @@ export function useMe() {
   const [loading, setLoading] = useState(true);
 
   const fetchMe = async (signal?: AbortSignal) => {
-    const res = await fetch("/api/me", { cache: "no-store", signal });
+    const res = await fetch("/api/me", {
+      cache: "no-store",
+      credentials: "include",
+      signal,
+    });
     const json = (await res.json()) as MeResponse;
     setMe(json);
   };
