@@ -5,26 +5,36 @@ export function EventLogo({
   logoUrl,
   size = 56,
   className,
+  fit = "contain",
+  frame = true,
 }: {
   logoUrl?: string;
   size?: number;
   className?: string;
+  fit?: "contain" | "cover";
+  frame?: boolean;
 }) {
   if (logoUrl) {
+    const pad = fit === "contain" ? Math.max(2, Math.round(size * 0.08)) : 0;
     return (
       <div
         className={cn(
-          "overflow-hidden rounded-2xl bg-white ring-1 ring-border shadow-sm",
+          frame
+            ? "overflow-hidden rounded-2xl bg-transparent ring-1 ring-white/10 shadow-sm"
+            : "bg-transparent",
           className,
         )}
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, padding: frame ? pad : 0 }}
       >
         <Image
           src={logoUrl}
           alt="Logo"
           width={size}
           height={size}
-          className="h-full w-full object-cover"
+          className={cn(
+            "h-full w-full",
+            fit === "contain" ? "object-contain" : "object-cover",
+          )}
         />
       </div>
     );
@@ -41,7 +51,10 @@ export function EventLogo({
     >
       <div
         className="rounded-full bg-brand-600"
-        style={{ width: Math.max(14, Math.floor(size * 0.38)), height: Math.max(14, Math.floor(size * 0.38)) }}
+        style={{
+          width: Math.max(14, Math.floor(size * 0.38)),
+          height: Math.max(14, Math.floor(size * 0.38)),
+        }}
       />
     </div>
   );

@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# local runtime storage (dev-only)
+/.local/
+
 # production
 /build
 

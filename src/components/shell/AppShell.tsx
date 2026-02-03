@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { CalendarDays, ChevronLeft, Home, MapPin } from "lucide-react";
+import { CalendarDays, ChevronLeft, Home, LogOut, MapPin, Shield } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
+import { useEffect, useState } from "react";
+import { clearAccess, getAccess, type AppAccess } from "@/lib/access";
 
 function titleForPath(pathname: string) {
   if (pathname.startsWith("/agenda/")) return "Detalle";
   if (pathname === "/agenda") return "AGENDA";
   if (pathname === "/mapa") return "MAPA";
+  if (pathname === "/admin") return "ADMIN";
   if (pathname === "/home") return "";
   return "Swat & Smart 2026";
 }
@@ -19,100 +22,172 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const cfg = useAppConfig();
+  const [access, setAccessState] = useState<AppAccess | null>(null);
 
   const title = titleForPath(pathname);
   const isDetail = pathname.startsWith("/agenda/");
 
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
+
+  useEffect(() => {
+    // Get latest access whenever we land here
+    const next = getAccess();
+    setAccessState(next);
+
+    if (!next) {
+      router.replace("/unlock");
+      return;
+    }
+    if (isAdminRoute && next !== "admin") {
+      router.replace("/home");
+      return;
+    }
+  }, [router, isAdminRoute, pathname]);
+
+  // IMPORTANT: avoid reading localStorage during render (causes SSR/CSR mismatch).
+  // We'll render the same DOM initially, then reveal Admin after mount if applicable.
+  const showAdmin = access === "admin";
+
+  const bgKey:
+    | keyof typeof cfg.backgrounds
+    | null =
+    pathname === "/home"
+      ? "home"
+      : pathname === "/agenda"
+        ? "agenda"
+        : pathname.startsWith("/agenda/")
+          ? "agendaDetail"
+          : pathname === "/mapa"
+            ? "mapa"
+            : pathname === "/privacidad"
+              ? "privacidad"
+              : pathname === "/admin"
+                ? "admin"
+                : null;
+  const bgUrl = bgKey ? cfg.backgrounds?.[bgKey]?.trim() : "";
+
   return (
     <div className="min-h-dvh">
-      <header
-        className={cn(
-          "sticky top-0 z-30",
-          "bg-background/85 backdrop-blur-md",
-          "border-b border-border",
-        )}
-        style={{ paddingTop: "max(10px, var(--sat))" }}
-      >
-        <div className="flex h-14 items-center gap-3 px-2">
-          <div className="flex w-12 items-center justify-start">
-            {isDetail ? (
-              <button
-                type="button"
-                aria-label="Volver"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl hover:bg-zinc-900/5 active:bg-zinc-900/10"
-                onClick={() => router.back()}
-              >
-                <ChevronLeft className="h-5 w-5 text-zinc-900" />
-              </button>
-            ) : (
-              <EventLogo logoUrl={cfg.logoUrl} size={40} />
-            )}
-          </div>
+      {/* Header only on Admin + Detail screens; client pages are full-bleed like the provided mocks */}
+      {pathname === "/admin" || isDetail ? (
+        <header
+          className={cn(
+            "sticky top-0 z-30",
+            "bg-background/85 backdrop-blur-md",
+            "border-b border-border",
+          )}
+          style={{ paddingTop: "max(10px, var(--sat))" }}
+        >
+          <div className="flex h-14 items-center gap-3 px-2">
+            <div className="flex w-12 items-center justify-start">
+              {isDetail ? (
+                <button
+                  type="button"
+                  aria-label="Volver"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-2xl hover:bg-zinc-900/5 active:bg-zinc-900/10"
+                  onClick={() => router.back()}
+                >
+                  <ChevronLeft className="h-5 w-5 text-zinc-900" />
+                </button>
+              ) : (
+                <EventLogo logoUrl={cfg.logoUrl} size={40} frame={cfg.logoStyle !== "plain"} />
+              )}
+            </div>
 
-          <div className="flex-1 text-center">
-            {title ? (
-              <>
-                <div className="text-[13px] font-semibold tracking-[0.18em] text-zinc-500">
+            <div className="flex-1 text-center">
+              {title ? (
+                <>
+                  <div className="text-[13px] font-semibold tracking-[0.18em] text-zinc-500">
+                    {cfg.eventName}
+                  </div>
+                  <div className="text-[16px] font-extrabold tracking-tight text-zinc-900">
+                    {title}
+                  </div>
+                </>
+              ) : (
+                <div className="text-[16px] font-extrabold tracking-tight text-zinc-900">
                   {cfg.eventName}
                 </div>
-                <div className="text-[16px] font-extrabold tracking-tight text-zinc-900">
-                  {title}
-                </div>
-              </>
-            ) : (
-              <div className="text-[16px] font-extrabold tracking-tight text-zinc-900">
-                {cfg.eventName}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className="flex w-12 items-center justify-end">
-            <Link
-              href="/privacidad"
-              className="inline-flex h-10 items-center justify-center rounded-2xl px-3 text-[12px] font-semibold text-zinc-700 hover:bg-zinc-900/5 active:bg-zinc-900/10"
-            >
-              Privacidad
-            </Link>
+            <div className="flex w-12 items-center justify-end">
+              <button
+                type="button"
+                aria-label="Cerrar sesión"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-zinc-700 hover:bg-zinc-900/5 active:bg-zinc-900/10"
+                onClick={() => {
+                  clearAccess();
+                  router.replace("/unlock");
+                }}
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      ) : null}
 
-      <main className="page-in pb-[calc(92px+max(10px,var(--sab)))] pt-4">
-        {children}
+      <main
+        className={cn(
+          "page-in",
+          pathname === "/admin" || isDetail ? "pb-[calc(92px+max(10px,var(--sab)))] pt-4" : "pb-[max(10px,var(--sab))] pt-0",
+          bgUrl ? "relative overflow-hidden" : null,
+        )}
+        style={
+          bgUrl
+            ? {
+                backgroundImage: `url(${bgUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : undefined
+        }
+      >
+        <div className="relative">{children}</div>
       </main>
 
-      <nav
-        className={cn(
-          "fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2",
-          "bg-background/85 backdrop-blur-md border-t border-border",
-        )}
-        style={{
-          paddingBottom: "max(10px, var(--sab))",
-          paddingLeft: "max(14px, var(--sal))",
-          paddingRight: "max(14px, var(--sar))",
-        }}
-      >
-        <div className="grid grid-cols-3 gap-2 px-2 py-2">
-          <BottomNavItem
-            href="/home"
-            active={pathname === "/home"}
-            label="Inicio"
-            icon={<Home className="h-5 w-5" />}
-          />
-          <BottomNavItem
-            href="/agenda"
-            active={pathname === "/agenda" || pathname.startsWith("/agenda/")}
-            label="Agenda"
-            icon={<CalendarDays className="h-5 w-5" />}
-          />
-          <BottomNavItem
-            href="/mapa"
-            active={pathname === "/mapa"}
-            label="Mapa"
-            icon={<MapPin className="h-5 w-5" />}
-          />
-        </div>
-      </nav>
+      {pathname === "/admin" ? (
+        <nav
+          className={cn(
+            "fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2",
+            "bg-background/85 backdrop-blur-md border-t border-border",
+          )}
+          style={{
+            paddingBottom: "max(10px, var(--sab))",
+            paddingLeft: "max(14px, var(--sal))",
+            paddingRight: "max(14px, var(--sar))",
+          }}
+        >
+          <div className="grid grid-cols-4 gap-2 px-2 py-2">
+            <BottomNavItem
+              href="/home"
+              active={false}
+              label="Inicio"
+              icon={<Home className="h-5 w-5" />}
+            />
+            <BottomNavItem
+              href="/agenda"
+              active={false}
+              label="Agenda"
+              icon={<CalendarDays className="h-5 w-5" />}
+            />
+            <BottomNavItem
+              href="/mapa"
+              active={false}
+              label="Mapa"
+              icon={<MapPin className="h-5 w-5" />}
+            />
+            <BottomNavItem
+              href="/admin"
+              active={showAdmin}
+              label="Admin"
+              icon={<Shield className="h-5 w-5" />}
+              hidden={!showAdmin}
+            />
+          </div>
+        </nav>
+      ) : null}
     </div>
   );
 }
@@ -122,11 +197,13 @@ function BottomNavItem({
   label,
   icon,
   active,
+  hidden,
 }: {
   href: string;
   label: string;
   icon: React.ReactNode;
   active: boolean;
+  hidden?: boolean;
 }) {
   return (
     <Link
@@ -136,6 +213,7 @@ function BottomNavItem({
         active
           ? "bg-brand-600 text-white shadow-sm"
           : "text-zinc-700 hover:bg-zinc-900/5 active:bg-zinc-900/10",
+        hidden ? "invisible pointer-events-none" : null,
       )}
     >
       {icon}

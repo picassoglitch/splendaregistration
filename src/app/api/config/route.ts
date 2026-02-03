@@ -1,22 +1,21 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DEFAULT_CONFIG, type AppConfig } from "@/lib/content/appConfig";
-
-const CONFIG_ID = "default";
+import { readLocalConfig, writeLocalConfig } from "@/lib/server/localConfigStore";
 
 export async function GET() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anon) return NextResponse.json(DEFAULT_CONFIG);
+  const cfg = await readLocalConfig();
+  return NextResponse.json(cfg, { headers: { "cache-control": "no-store" } });
+}
 
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("app_config")
-    .select("config")
-    .eq("id", CONFIG_ID)
-    .maybeSingle();
-
-  if (error || !data?.config) return NextResponse.json(DEFAULT_CONFIG);
-  return NextResponse.json({ ...DEFAULT_CONFIG, ...(data.config as AppConfig) });
+// Local-only persistence so Admin changes reflect across all browser contexts (including Incognito).
+export async function PUT(req: Request) {
+  try {
+    const body = (await req.json()) as Partial<AppConfig>;
+    const next: AppConfig = { ...DEFAULT_CONFIG, ...body } as AppConfig;
+    await writeLocalConfig(next);
+    return NextResponse.json(next, { headers: { "cache-control": "no-store" } });
+  } catch {
+    return new NextResponse("Bad Request", { status: 400 });
+  }
 }
 

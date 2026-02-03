@@ -2,9 +2,9 @@
    Replace/extend with Workbox later if desired. */
 
 // Bump this to invalidate older caches on deploys.
-const CACHE_NAME = "ss2026-v3";
-// Only cache public pages (protected pages depend on auth/session)
-const CORE_ASSETS = ["/", "/register", "/success", "/privacidad"];
+const CACHE_NAME = "ss2026-v4";
+// Only cache immutable/static assets. Avoid caching HTML to prevent hydration mismatches after updates.
+const CORE_ASSETS = ["/splash.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -43,25 +43,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Network-first for navigation so content updates when online.
-  const isNavigation = req.mode === "navigate";
-  if (isNavigation) {
-    event.respondWith(
-      (async () => {
-        try {
-          const fresh = await fetch(req);
-          // Avoid caching redirects/failed responses (common with auth-protected routes)
-          if (fresh.ok && fresh.type !== "opaqueredirect") {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put(req, fresh.clone());
-          }
-          return fresh;
-        } catch {
-          const cached = await caches.match(req);
-          return cached || caches.match("/");
-        }
-      })(),
-    );
+  // Never cache HTML / navigations. This prevents serving stale HTML after deploys (hydration mismatch).
+  const accept = req.headers.get("accept") || "";
+  const isHtml = req.mode === "navigate" || accept.includes("text/html");
+  if (isHtml) {
+    event.respondWith(fetch(req));
     return;
   }
 
