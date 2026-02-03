@@ -31,6 +31,20 @@ function readFileAsDataUrl(file: File): Promise<string> {
   });
 }
 
+async function uploadAsset(file: File, path: string) {
+  const fd = new FormData();
+  fd.set("file", file);
+  fd.set("path", path);
+  fd.set("bucket", "assets");
+  fd.set("upsert", "1");
+  const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+  if (!res.ok) throw new Error("upload_failed");
+  const json = (await res.json()) as { publicUrl?: string };
+  if (!json.publicUrl) throw new Error("upload_failed");
+  // cache-bust on update
+  return `${json.publicUrl}?v=${Date.now()}`;
+}
+
 function downloadJson(filename: string, obj: unknown) {
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -292,8 +306,15 @@ export default function AdminPage() {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     try {
-                      const dataUrl = await readFileAsDataUrl(file);
-                      setLogoUrl(dataUrl);
+                      const ext =
+                        file.name.split(".").pop()?.toLowerCase() ||
+                        (file.type.includes("png")
+                          ? "png"
+                          : file.type.includes("jpeg")
+                            ? "jpg"
+                            : "png");
+                      const url = await uploadAsset(file, `branding/logo.${ext}`);
+                      setLogoUrl(url);
                     } catch {
                       setError("No se pudo leer la imagen.");
                     } finally {
@@ -424,7 +445,14 @@ export default function AdminPage() {
                         const file = e.target.files?.[0];
                         if (!file) return;
                         try {
-                          const dataUrl = await readFileAsDataUrl(file);
+                          const ext =
+                            file.name.split(".").pop()?.toLowerCase() ||
+                            (file.type.includes("png")
+                              ? "png"
+                              : file.type.includes("jpeg")
+                                ? "jpg"
+                                : "png");
+                          const dataUrl = await uploadAsset(file, `backgrounds/${bgKey}.${ext}`);
                           await persist({
                             ...cfg,
                             backgrounds: { ...cfg.backgrounds, [bgKey]: dataUrl },

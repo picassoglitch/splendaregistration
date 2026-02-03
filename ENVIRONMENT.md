@@ -1,3 +1,18 @@
+## Environment variables (Production)
+
+Set these in your hosting provider (e.g. Vercel):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only)
+
+Password wall (server-only):
+
+- `APP_COOKIE_SECRET` (random secret for signing the access cookie)
+- `APP_USER_PASS`
+- `APP_ADMIN_PASS`
+- `APP_ADMIN_PASS_ALT` (optional)
+
 ## Environment variables (local + Vercel)
 
 Create a local `.env.local` (not committed) with:

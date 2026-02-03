@@ -8,10 +8,6 @@ import { cn } from "@/lib/cn";
 import { setAccess, type AppAccess, getAccess } from "@/lib/access";
 import Image from "next/image";
 
-const USER_PASS = "sweetandsmart2026";
-// User message had a typo ("seewt..."). Accept both to avoid lockouts.
-const ADMIN_PASS_SET = new Set(["sweetandsmartadmin2026", "seewtandsmartadmin2026"]);
-
 function Blob({
   className,
   color,
@@ -56,23 +52,31 @@ export default function UnlockPage() {
     setError(null);
 
     const pass = password.trim();
-    let access: AppAccess | null = null;
-    if (pass === USER_PASS) access = "user";
-    if (ADMIN_PASS_SET.has(pass)) access = "admin";
+    try {
+      const res = await fetch("/api/access", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ password: pass }),
+      });
+      if (!res.ok) {
+        setError("Contraseña incorrecta.");
+        setSubmitting(false);
+        return;
+      }
+      const json = (await res.json()) as { access?: AppAccess };
+      const access = json.access === "admin" ? "admin" : "user";
+      // Keep localStorage in sync for client-side route gating and UI.
+      setAccess(access);
 
-    if (!access) {
+      // micro-delay to let button feel responsive on mobile
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < 250) await new Promise((r) => setTimeout(r, 250 - elapsed));
+
+      router.replace(access === "admin" ? "/admin" : "/home");
+    } catch {
+      setError("Error de conexión. Intenta de nuevo.");
       setSubmitting(false);
-      setError("Contraseña incorrecta.");
-      return;
     }
-
-    setAccess(access);
-
-    // micro-delay to let button feel responsive on mobile
-    const elapsed = Date.now() - startedAt;
-    if (elapsed < 250) await new Promise((r) => setTimeout(r, 250 - elapsed));
-
-    router.replace(access === "admin" ? "/admin" : "/home");
   };
 
   return (

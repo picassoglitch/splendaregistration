@@ -118,6 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-zinc-700 hover:bg-zinc-900/5 active:bg-zinc-900/10"
                 onClick={() => {
                   clearAccess();
+                fetch("/api/access", { method: "DELETE" }).catch(() => undefined);
                   router.replace("/unlock");
                 }}
               >

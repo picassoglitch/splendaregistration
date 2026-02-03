@@ -31,6 +31,7 @@ export function HomeClient() {
             className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15 backdrop-blur-sm active:scale-[0.99]"
             onClick={() => {
               clearAccess();
+              fetch("/api/access", { method: "DELETE" }).catch(() => undefined);
               router.replace("/unlock");
             }}
           >
