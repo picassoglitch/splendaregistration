@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { ACCESS_COOKIE_NAME, makeAccessCookieValue, type AccessLevel } from "@/lib/server/accessCookie";
+import { cookies } from "next/headers";
+import { readAccessFromCookies } from "@/lib/server/accessCookie";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -9,6 +11,15 @@ function passes() {
   const admin = process.env.APP_ADMIN_PASS ?? "seewtandsmartadmin2026";
   const adminAlt = process.env.APP_ADMIN_PASS_ALT ?? "sweetandsmartadmin2026";
   return { user, admin, adminAlt };
+}
+
+export async function GET() {
+  const cookieStore = await cookies();
+  const access = readAccessFromCookies(cookieStore);
+  return NextResponse.json(
+    { ok: true, access },
+    { headers: { "cache-control": "no-store" } },
+  );
 }
 
 export async function POST(req: Request) {

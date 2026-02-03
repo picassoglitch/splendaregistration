@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { EventLogo } from "@/components/branding/EventLogo";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { cn } from "@/lib/cn";
-import { setAccess, type AppAccess, getAccess } from "@/lib/access";
+import { clearAccess, setAccess, type AppAccess, getAccess } from "@/lib/access";
 import Image from "next/image";
 
 function Blob({
@@ -41,9 +41,24 @@ export default function UnlockPage() {
   const startedAt = useMemo(() => Date.now(), []);
 
   useEffect(() => {
-    const access = getAccess();
-    if (access === "admin") router.replace("/admin");
-    if (access === "user") router.replace("/home");
+    // Never trust localStorage for auth; verify via httpOnly cookie.
+    const run = async () => {
+      try {
+        const res = await fetch("/api/access", { cache: "no-store" });
+        if (!res.ok) throw new Error("bad");
+        const json = (await res.json()) as { access?: AppAccess | null };
+        const access = json.access ?? null;
+        if (!access) {
+          clearAccess();
+          return;
+        }
+        setAccess(access);
+        router.replace(access === "admin" ? "/admin" : "/home");
+      } catch {
+        // ignore
+      }
+    };
+    run().catch(() => undefined);
   }, [router]);
 
   const submit = async () => {

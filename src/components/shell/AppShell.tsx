@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
 import { useEffect, useState } from "react";
-import { clearAccess, getAccess, type AppAccess } from "@/lib/access";
+import { clearAccess, setAccess, getAccess, type AppAccess } from "@/lib/access";
 
 function titleForPath(pathname: string) {
   if (pathname.startsWith("/agenda/")) return "Detalle";
@@ -30,18 +30,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
 
   useEffect(() => {
-    // Get latest access whenever we land here
-    const next = getAccess();
-    setAccessState(next);
+    let cancelled = false;
 
-    if (!next) {
-      router.replace("/unlock");
-      return;
-    }
-    if (isAdminRoute && next !== "admin") {
-      router.replace("/home");
-      return;
-    }
+    const sync = async () => {
+      // Prefer server cookie (source of truth)
+      try {
+        const res = await fetch("/api/access", { cache: "no-store" });
+        const json = (await res.json()) as { access?: AppAccess | null };
+        const serverAccess = (res.ok ? json.access : null) ?? null;
+        if (cancelled) return;
+        if (!serverAccess) {
+          clearAccess();
+          setAccessState(null);
+          router.replace("/unlock");
+          return;
+        }
+        setAccess(serverAccess);
+        setAccessState(serverAccess);
+        if (isAdminRoute && serverAccess !== "admin") {
+          router.replace("/home");
+        }
+      } catch {
+        // Fallback to local for offline/dev, but keep existing behavior
+        const next = getAccess();
+        setAccessState(next);
+        if (!next) router.replace("/unlock");
+        if (isAdminRoute && next !== "admin") router.replace("/home");
+      }
+    };
+
+    sync().catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
   }, [router, isAdminRoute, pathname]);
 
   // IMPORTANT: avoid reading localStorage during render (causes SSR/CSR mismatch).

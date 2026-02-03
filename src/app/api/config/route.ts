@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { DEFAULT_CONFIG, type AppConfig } from "@/lib/content/appConfig";
-import { readLocalConfig, writeLocalConfig } from "@/lib/server/localConfigStore";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { cookies } from "next/headers";
 import { readAccessFromCookies } from "@/lib/server/accessCookie";
@@ -9,7 +8,6 @@ export async function GET() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // In production we prefer Supabase DB. In local dev without Supabase env, fallback to filesystem.
   if (url && anon && process.env.SUPABASE_SERVICE_ROLE_KEY) {
     const supabase = getSupabaseServiceClient();
     const { data } = await supabase
@@ -22,11 +20,10 @@ export async function GET() {
     return NextResponse.json(cfg, { headers: { "cache-control": "no-store" } });
   }
 
-  const cfg = await readLocalConfig();
-  return NextResponse.json(cfg, { headers: { "cache-control": "no-store" } });
+  // If Supabase env isn't configured, just return defaults.
+  return NextResponse.json(DEFAULT_CONFIG, { headers: { "cache-control": "no-store" } });
 }
 
-// Local-only persistence so Admin changes reflect across all browser contexts (including Incognito).
 export async function PUT(req: Request) {
   try {
     const cookieStore = await cookies();
@@ -48,8 +45,7 @@ export async function PUT(req: Request) {
       return NextResponse.json(next, { headers: { "cache-control": "no-store" } });
     }
 
-    await writeLocalConfig(next);
-    return NextResponse.json(next, { headers: { "cache-control": "no-store" } });
+    return new NextResponse("Supabase not configured", { status: 500 });
   } catch {
     return new NextResponse("Bad Request", { status: 400 });
   }
