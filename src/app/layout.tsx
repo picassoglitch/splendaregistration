@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SWRegister } from "@/components/pwa/SWRegister";
-import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ConfigHydrate } from "@/components/content/ConfigHydrate";
 
 const geistSans = Geist({
@@ -43,13 +42,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <div className="min-h-dvh bg-background text-foreground">
-            <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-background px-[max(14px,var(--sal))] pr-[max(14px,var(--sar))]">
-              {children}
-            </div>
+        <div className="min-h-dvh bg-background text-foreground">
+          <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-background px-[max(14px,var(--sal))] pr-[max(14px,var(--sar))]">
+            {children}
           </div>
-        </AuthProvider>
+        </div>
         <SWRegister />
         <ConfigHydrate />
       </body>

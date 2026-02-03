@@ -3,8 +3,9 @@
 import { SupportFooter } from "@/components/SupportFooter";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
-import { Suspense } from "react";
-import { LandingClient } from "@/app/LandingClient";
+import Link from "next/link";
+import { PrimaryLinkButton } from "@/components/ui/PrimaryButton";
+import { CalendarDays, MapPin } from "lucide-react";
 
 export default function Home() {
   const cfg = useAppConfig();
@@ -34,9 +35,25 @@ export default function Home() {
           </div>
 
           <div className="mt-8 w-full max-w-[420px]">
-            <Suspense fallback={<div />}>
-              <LandingClient />
-            </Suspense>
+            <div className="space-y-4">
+              <PrimaryLinkButton href="/home">Abrir app</PrimaryLinkButton>
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href="/agenda"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-white text-zinc-900 font-semibold ring-1 ring-border hover:bg-zinc-50 active:bg-zinc-100"
+                >
+                  <CalendarDays className="h-5 w-5" />
+                  Agenda
+                </Link>
+                <Link
+                  href="/mapa"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-white text-zinc-900 font-semibold ring-1 ring-border hover:bg-zinc-50 active:bg-zinc-100"
+                >
+                  <MapPin className="h-5 w-5" />
+                  Mapa
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { CalendarDays, ChevronLeft, Home, MapPin, Shield, User } from "lucide-react";
+import { CalendarDays, ChevronLeft, Home, MapPin } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { useAuth } from "@/components/auth/AuthProvider";
-import * as Dialog from "@radix-ui/react-dialog";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
-import { useMe } from "@/lib/hooks/useMe";
 
 function titleForPath(pathname: string) {
   if (pathname.startsWith("/agenda/")) return "Detalle";
@@ -21,13 +18,10 @@ function titleForPath(pathname: string) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { profile, logout } = useAuth();
   const cfg = useAppConfig();
-  const { role, loading, refetch } = useMe();
 
   const title = titleForPath(pathname);
   const isDetail = pathname.startsWith("/agenda/");
-  const showAdmin = role === "super_admin" || role === "admin";
 
   return (
     <div className="min-h-dvh">
@@ -73,97 +67,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex w-12 items-center justify-end">
-            <Dialog.Root onOpenChange={(open) => open && refetch()}>
-              <Dialog.Trigger asChild>
-                <button
-                  type="button"
-                  aria-label="Usuario"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-2xl hover:bg-zinc-900/5 active:bg-zinc-900/10"
-                >
-                  <User className="h-5 w-5 text-zinc-900" />
-                </button>
-              </Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px]" />
-                <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-28px)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white p-5 shadow-2xl ring-1 ring-black/10">
-                  <Dialog.Title className="text-[16px] font-extrabold text-zinc-900">
-                    {profile ? "Tu cuenta" : "Entrar"}
-                  </Dialog.Title>
-                  <Dialog.Description className="mt-1 text-[13px] text-zinc-600">
-                    {profile
-                      ? `${profile.name} · ${profile.email}`
-                      : "Puedes registrarte o entrar para personalizar (opcional)."}
-                  </Dialog.Description>
-
-                  {profile ? (
-                    <div className="mt-2 flex items-center justify-between gap-3 text-[12px] font-semibold text-zinc-500">
-                      <div>
-                        Rol:{" "}
-                        <span className="font-extrabold text-zinc-800">
-                          {loading ? "cargando…" : (role ?? "—")}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        className="rounded-xl px-3 py-2 hover:bg-zinc-900/5 active:bg-zinc-900/10"
-                        onClick={refetch}
-                      >
-                        Actualizar
-                      </button>
-                    </div>
-                  ) : null}
-
-                  <div className="mt-4 grid gap-2">
-                    {!profile ? (
-                      <>
-                        <Link
-                          href="/login"
-                          className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 text-white font-semibold shadow-sm hover:bg-brand-700 active:bg-brand-800"
-                        >
-                          Entrar
-                        </Link>
-                        <Link
-                          href="/register"
-                          className="inline-flex h-12 items-center justify-center rounded-2xl bg-white text-zinc-900 font-semibold ring-1 ring-border hover:bg-zinc-50 active:bg-zinc-100"
-                        >
-                          Registrarme
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        {role === "super_admin" || role === "admin" ? (
-                          <Link
-                            href="/admin"
-                            className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 text-white font-semibold shadow-sm hover:bg-brand-700 active:bg-brand-800"
-                          >
-                            Panel Admin
-                          </Link>
-                        ) : null}
-                        <button
-                          type="button"
-                          className="inline-flex h-12 items-center justify-center rounded-2xl bg-white text-zinc-900 font-semibold ring-1 ring-border hover:bg-zinc-50 active:bg-zinc-100"
-                          onClick={async () => {
-                            await logout();
-                            router.push("/");
-                          }}
-                        >
-                          Cerrar sesión
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  <Dialog.Close asChild>
-                    <button
-                      type="button"
-                      className="mt-4 w-full rounded-2xl px-4 py-3 text-[14px] font-semibold text-zinc-600 hover:bg-zinc-900/5 active:bg-zinc-900/10"
-                    >
-                      Cerrar
-                    </button>
-                  </Dialog.Close>
-                </Dialog.Content>
-              </Dialog.Portal>
-            </Dialog.Root>
+            <Link
+              href="/privacidad"
+              className="inline-flex h-10 items-center justify-center rounded-2xl px-3 text-[12px] font-semibold text-zinc-700 hover:bg-zinc-900/5 active:bg-zinc-900/10"
+            >
+              Privacidad
+            </Link>
           </div>
         </div>
       </header>
@@ -183,7 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           paddingRight: "max(14px, var(--sar))",
         }}
       >
-        <div className={cn("grid gap-2 px-2 py-2", showAdmin ? "grid-cols-4" : "grid-cols-3")}>
+        <div className="grid grid-cols-3 gap-2 px-2 py-2">
           <BottomNavItem
             href="/home"
             active={pathname === "/home"}
@@ -202,14 +111,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             label="Mapa"
             icon={<MapPin className="h-5 w-5" />}
           />
-          {showAdmin ? (
-            <BottomNavItem
-              href="/admin"
-              active={pathname === "/admin"}
-              label="Admin"
-              icon={<Shield className="h-5 w-5" />}
-            />
-          ) : null}
         </div>
       </nav>
     </div>
