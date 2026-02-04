@@ -17,46 +17,57 @@ function sortAgenda(items: AgendaItem[]) {
 }
 
 type Track = AgendaItem["track"];
+type TrackFilter = Track | "General";
 
 function TrackToggle({
   value,
   onChange,
   options,
 }: {
-  value: Track;
-  onChange: (v: Track) => void;
-  options: Track[];
+  value: TrackFilter;
+  onChange: (v: TrackFilter) => void;
+  options: TrackFilter[];
 }) {
   return (
-    <div className="flex w-full items-center justify-center gap-10 px-4">
+    <div
+      className="mx-auto w-[calc(100%-28px)] max-w-[440px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
+      role="radiogroup"
+      aria-label="Filtro de agenda"
+    >
+      <div className="flex w-full items-center justify-between gap-6">
       {options.map((opt) => {
         const active = opt === value;
+        const label =
+          opt === "General" ? "General" : opt === "Plenario" ? "Plenaria" : opt;
         return (
           <button
             key={opt}
             type="button"
-            className="flex flex-col items-center gap-2"
+            role="radio"
+            aria-checked={active}
+            className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
             onClick={() => onChange(opt)}
           >
             <div
               className={cn(
-                "h-9 w-9 rounded-full ring-2 ring-white/80",
-                active ? "bg-white/10" : "bg-transparent",
+                "h-11 w-11 rounded-full ring-2 ring-white",
+                active ? "bg-white/15" : "bg-transparent",
               )}
             >
               <div
                 className={cn(
-                  "mx-auto mt-[7px] h-4 w-4 rounded-full",
+                  "mx-auto mt-[9px] h-5 w-5 rounded-full",
                   active ? "bg-white" : "bg-transparent",
                 )}
               />
             </div>
-            <div className={cn("text-[13px] font-semibold", active ? "text-white" : "text-white/85")}>
-              {opt === "Plenario" ? "Plenaria" : opt}
+            <div className={cn("text-[14px] font-extrabold", active ? "text-white" : "text-white/90")}>
+              {label}
             </div>
           </button>
         );
       })}
+      </div>
     </div>
   );
 }
@@ -64,7 +75,7 @@ function TrackToggle({
 export function AgendaClient() {
   const cfg = useAppConfig();
   const [override, setOverride] = useState<AgendaItem[] | null>(null);
-  const [track, setTrack] = useState<Track>("Plenario");
+  const [track, setTrack] = useState<TrackFilter>("General");
 
   useEffect(() => {
     let cancelled = false;
@@ -90,7 +101,10 @@ export function AgendaClient() {
     return sortAgenda(base);
   }, [override]);
 
-  const filtered = useMemo(() => items.filter((x) => x.track === track), [items, track]);
+  const filtered = useMemo(() => {
+    if (track === "General") return items;
+    return items.filter((x) => x.track === track);
+  }, [items, track]);
 
   return (
     <div className="min-h-dvh text-white">
@@ -149,7 +163,11 @@ export function AgendaClient() {
         className="fixed left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
-        <TrackToggle value={track} onChange={setTrack} options={["Plenario", "Expositores", "Otros"]} />
+        <TrackToggle
+          value={track}
+          onChange={setTrack}
+          options={["General", "Plenario", "Expositores", "Otros"]}
+        />
       </div>
     </div>
   );

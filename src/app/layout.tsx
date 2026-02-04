@@ -43,7 +43,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="min-h-dvh bg-background text-foreground">
-          <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-background px-[max(14px,var(--sal))] pr-[max(14px,var(--sar))]">
+          <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-background">
             {children}
           </div>
         </div>
