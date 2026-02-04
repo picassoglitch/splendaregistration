@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  themeColor: "#7f56ff",
+  themeColor: "#213b74",
 };
 
 export default function RootLayout({

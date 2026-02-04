@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function passes() {
-  const user = process.env.APP_USER_PASS ?? "sweetandsmart2026";
+  const user = process.env.APP_USER_PASS ?? "splenda";
   const admin = process.env.APP_ADMIN_PASS ?? "seewtandsmartadmin2026";
   const adminAlt = process.env.APP_ADMIN_PASS_ALT ?? "sweetandsmartadmin2026";
   return { user, admin, adminAlt };

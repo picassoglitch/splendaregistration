@@ -12,6 +12,61 @@ import { cn } from "@/lib/cn";
 
 type Filter = MapPointType;
 
+function TypeToggle({
+  value,
+  onChange,
+}: {
+  value: Filter;
+  onChange: (v: Filter) => void;
+}) {
+  return (
+    <div
+      className="mx-auto w-[calc(100%-28px)] max-w-[440px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
+      role="radiogroup"
+      aria-label="Filtro de mapa"
+    >
+      <div className="flex w-full items-center justify-between gap-6">
+        {MAP_TYPES.map((t) => {
+          const active = t.value === value;
+          const label =
+            t.value === "zona"
+              ? "Zonas"
+              : t.value === "encuentro"
+                ? "Punto"
+                : "Otros";
+          return (
+            <button
+              key={t.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
+              onClick={() => onChange(t.value)}
+            >
+              <div
+                className={cn(
+                  "h-11 w-11 rounded-full ring-2 ring-white",
+                  active ? "bg-white/15" : "bg-transparent",
+                )}
+              >
+                <div
+                  className={cn(
+                    "mx-auto mt-[9px] h-5 w-5 rounded-full",
+                    active ? "bg-white" : "bg-transparent",
+                  )}
+                />
+              </div>
+              <div className={cn("text-[14px] font-extrabold", active ? "text-white" : "text-white/90")}>
+                {label}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function MapaView({ points }: { points: MapPoint[] }) {
   const [filter, setFilter] = useState<Filter>("zona");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -82,55 +137,7 @@ export function MapaView({ points }: { points: MapPoint[] }) {
         className="fixed left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
-        <div
-          className="mx-auto w-[calc(100%-28px)] max-w-[440px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
-          role="radiogroup"
-          aria-label="Filtro de mapa"
-        >
-          <div className="flex w-full items-center justify-between gap-6">
-            {MAP_TYPES.map((t) => {
-              const active = t.value === filter;
-              const label =
-                t.value === "zona"
-                  ? "Zonas"
-                  : t.value === "encuentro"
-                    ? "Punto"
-                    : "Others";
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
-                  onClick={() => setFilter(t.value)}
-                >
-                  <div
-                    className={cn(
-                      "h-11 w-11 rounded-full ring-2 ring-white",
-                      active ? "bg-white/15" : "bg-transparent",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "mx-auto mt-[9px] h-5 w-5 rounded-full",
-                        active ? "bg-white" : "bg-transparent",
-                      )}
-                    />
-                  </div>
-                  <div
-                    className={cn(
-                      "text-[14px] font-extrabold",
-                      active ? "text-white" : "text-white/90",
-                    )}
-                  >
-                    {label}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <TypeToggle value={filter} onChange={setFilter} />
       </div>
 
       <Dialog.Root open={Boolean(openId)} onOpenChange={(o) => !o && setOpenId(null)}>
