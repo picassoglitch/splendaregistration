@@ -44,7 +44,7 @@ export default function Home() {
           fill
           priority
           sizes="100vw"
-          className="page-in object-contain"
+          className="page-in object-contain [transform:scale(1.10)]"
         />
       </div>
     </button>
