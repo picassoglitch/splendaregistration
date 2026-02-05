@@ -172,7 +172,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {pathname === "/admin" ? (
         <nav
           className={cn(
-            "fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2",
+            "fixed bottom-0 left-1/2 z-30 w-full md:max-w-[430px] -translate-x-1/2",
             "bg-background/85 backdrop-blur-md border-t border-border",
           )}
           style={{

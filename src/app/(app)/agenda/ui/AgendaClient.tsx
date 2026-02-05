@@ -18,6 +18,9 @@ function sortAgenda(items: AgendaItem[]) {
 
 const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] as const;
 
+// Fixed agenda day buttons (per requirements)
+const FIXED_DAYS = ["2026-02-17", "2026-02-18", "2026-02-19"] as const;
+
 function formatDayShort(day: string) {
   // expected: YYYY-MM-DD
   try {
@@ -42,7 +45,7 @@ function DayToggle({
 }) {
   return (
     <div
-      className="mx-auto w-[calc(100%-28px)] max-w-[440px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
+      className="mx-auto w-[calc(100%-28px)] max-w-[402px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
       role="tablist"
       aria-label="Días de agenda"
     >
@@ -86,7 +89,7 @@ function DayToggle({
 export function AgendaClient() {
   const cfg = useAppConfig();
   const [override, setOverride] = useState<AgendaItem[] | null>(null);
-  const [day, setDay] = useState<string>("");
+  const [day, setDay] = useState<string>(FIXED_DAYS[0]);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,19 +114,6 @@ export function AgendaClient() {
     const base = override ?? getAgendaItems();
     return sortAgenda(base);
   }, [override]);
-
-  const days = useMemo(() => {
-    const uniq = new Set<string>();
-    for (const it of items) {
-      if (it.day) uniq.add(it.day);
-    }
-    return Array.from(uniq).sort((a, b) => a.localeCompare(b));
-  }, [items]);
-
-  useEffect(() => {
-    if (!days.length) return;
-    if (!day || !days.includes(day)) setDay(days[0] || "");
-  }, [days, day]);
 
   const filtered = useMemo(() => {
     if (!day) return items;
@@ -184,10 +174,10 @@ export function AgendaClient() {
 
       {/* Bottom track selector */}
       <div
-        className="fixed left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2"
+        className="fixed inset-x-0 z-20 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
-        <DayToggle value={day} onChange={setDay} options={days} />
+        <DayToggle value={day} onChange={setDay} options={[...FIXED_DAYS]} />
       </div>
     </div>
   );

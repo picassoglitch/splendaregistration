@@ -134,7 +134,7 @@ export function MapaView({ points }: { points: MapPoint[] }) {
 
       {/* Bottom type selector (circle controls like the mock) */}
       <div
-        className="fixed left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2"
+        className="fixed inset-x-0 z-20 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
         <TypeToggle value={filter} onChange={setFilter} />

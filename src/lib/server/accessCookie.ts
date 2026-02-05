@@ -7,8 +7,11 @@ const COOKIE_NAME = "ss2026_access";
 
 function secret() {
   const s = process.env.APP_COOKIE_SECRET;
-  if (!s) throw new Error("Missing APP_COOKIE_SECRET");
-  return s;
+  if (s) return s;
+  // Dev/local fallback so login works out-of-the-box.
+  // In production we still require an explicit secret.
+  if (process.env.NODE_ENV === "production") throw new Error("Missing APP_COOKIE_SECRET");
+  return "dev-cookie-secret-change-me";
 }
 
 function sign(payload: string) {
