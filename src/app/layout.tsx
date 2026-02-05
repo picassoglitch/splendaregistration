@@ -42,8 +42,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-dvh bg-background text-foreground">
-          <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-background">
+        <div className="min-h-dvh bg-background text-foreground md:flex md:items-center md:justify-center md:p-8">
+          <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-background md:min-h-[calc(100dvh-64px)] md:rounded-[36px] md:shadow-2xl md:ring-1 md:ring-black/10 overflow-hidden">
             {children}
           </div>
         </div>

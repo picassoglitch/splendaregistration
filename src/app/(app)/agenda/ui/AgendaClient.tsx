@@ -16,57 +16,68 @@ function sortAgenda(items: AgendaItem[]) {
   });
 }
 
-type Track = AgendaItem["track"];
-type TrackFilter = Track | "General";
+const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] as const;
 
-function TrackToggle({
+function formatDayShort(day: string) {
+  // expected: YYYY-MM-DD
+  try {
+    const d = new Date(`${day}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return day;
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = MONTHS_ES[d.getMonth()] ?? "";
+    return mm ? `${dd} ${mm}` : dd;
+  } catch {
+    return day;
+  }
+}
+
+function DayToggle({
   value,
   onChange,
   options,
 }: {
-  value: TrackFilter;
-  onChange: (v: TrackFilter) => void;
-  options: TrackFilter[];
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
 }) {
   return (
     <div
       className="mx-auto w-[calc(100%-28px)] max-w-[440px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
-      role="radiogroup"
-      aria-label="Filtro de agenda"
+      role="tablist"
+      aria-label="Días de agenda"
     >
       <div className="flex w-full items-center justify-between gap-6">
-      {options.map((opt) => {
-        const active = opt === value;
-        const label =
-          opt === "General" ? "General" : opt === "Plenario" ? "Plenaria" : opt;
-        return (
-          <button
-            key={opt}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
-            onClick={() => onChange(opt)}
-          >
-            <div
-              className={cn(
-                "h-11 w-11 rounded-full ring-2 ring-white",
-                active ? "bg-white/15" : "bg-transparent",
-              )}
+        {options.map((opt) => {
+          const active = opt === value;
+          const label = formatDayShort(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
+              onClick={() => onChange(opt)}
             >
               <div
                 className={cn(
-                  "mx-auto mt-[9px] h-5 w-5 rounded-full",
-                  active ? "bg-white" : "bg-transparent",
+                  "h-11 w-11 rounded-full ring-2 ring-white",
+                  active ? "bg-white/15" : "bg-transparent",
                 )}
-              />
-            </div>
-            <div className={cn("text-[14px] font-extrabold", active ? "text-white" : "text-white/90")}>
-              {label}
-            </div>
-          </button>
-        );
-      })}
+              >
+                <div
+                  className={cn(
+                    "mx-auto mt-[9px] h-5 w-5 rounded-full",
+                    active ? "bg-white" : "bg-transparent",
+                  )}
+                />
+              </div>
+              <div className={cn("text-[14px] font-extrabold", active ? "text-white" : "text-white/90")}>
+                {label}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -75,7 +86,7 @@ function TrackToggle({
 export function AgendaClient() {
   const cfg = useAppConfig();
   const [override, setOverride] = useState<AgendaItem[] | null>(null);
-  const [track, setTrack] = useState<TrackFilter>("General");
+  const [day, setDay] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
@@ -101,10 +112,23 @@ export function AgendaClient() {
     return sortAgenda(base);
   }, [override]);
 
+  const days = useMemo(() => {
+    const uniq = new Set<string>();
+    for (const it of items) {
+      if (it.day) uniq.add(it.day);
+    }
+    return Array.from(uniq).sort((a, b) => a.localeCompare(b));
+  }, [items]);
+
+  useEffect(() => {
+    if (!days.length) return;
+    if (!day || !days.includes(day)) setDay(days[0] || "");
+  }, [days, day]);
+
   const filtered = useMemo(() => {
-    if (track === "General") return items;
-    return items.filter((x) => x.track === track);
-  }, [items, track]);
+    if (!day) return items;
+    return items.filter((x) => x.day === day);
+  }, [items, day]);
 
   return (
     <div className="min-h-dvh text-white">
@@ -123,7 +147,7 @@ export function AgendaClient() {
               {cfg.agendaTitle || "AGENDA"}
             </div>
             <div className="mt-1 text-[18px] font-semibold text-white/90">
-              {cfg.agendaDayLabel || ""}
+              {day ? formatDayShort(day) : ""}
             </div>
           </div>
           <div className="w-[46px]" />
@@ -163,11 +187,7 @@ export function AgendaClient() {
         className="fixed left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
-        <TrackToggle
-          value={track}
-          onChange={setTrack}
-          options={["General", "Plenario", "Expositores", "Otros"]}
-        />
+        <DayToggle value={day} onChange={setDay} options={days} />
       </div>
     </div>
   );

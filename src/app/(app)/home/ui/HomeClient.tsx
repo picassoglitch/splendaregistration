@@ -42,7 +42,7 @@ export function HomeClient() {
         <div className="mt-8 flex w-full items-center justify-center">
           <EventLogo
             logoUrl={cfg.logoUrl}
-            size={236}
+            size={308}
             fit={cfg.logoStyle !== "plain" ? "cover" : "contain"}
             frame={cfg.logoStyle !== "plain"}
             className={cfg.logoStyle !== "plain" ? "rounded-full shadow-[0_26px_70px_rgba(0,0,0,0.35)]" : ""}
