@@ -62,6 +62,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Make images responsive by default (safe with Next/Image inline styles) */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 /* Subtle page-enter animation (no extra deps) */
 @keyframes page-in {
   from {

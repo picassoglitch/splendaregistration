@@ -25,7 +25,7 @@ export default function Home() {
   return (
     <button
       type="button"
-      className="fixed inset-0 left-1/2 w-full max-w-[480px] -translate-x-1/2 overflow-hidden"
+      className="relative w-full min-h-dvh overflow-hidden"
       style={{ backgroundColor: "#1C3D78" }}
       aria-label="Abrir"
       onClick={() => {

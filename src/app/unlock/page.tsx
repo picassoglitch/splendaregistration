@@ -95,7 +95,7 @@ export default function UnlockPage() {
   };
 
   return (
-    <div className="fixed inset-0 left-1/2 w-full max-w-[480px] -translate-x-1/2 overflow-hidden bg-[#1C3D78]">
+    <div className="relative w-full min-h-dvh overflow-hidden bg-[#1C3D78]">
       {cfg.backgrounds?.unlock?.trim() ? (
         <div className="absolute inset-0">
           <Image
