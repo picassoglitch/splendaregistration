@@ -17,6 +17,9 @@ export type MapPoint = {
   id: string;
   title: string;
   type: MapPointType;
+  // Optional: allows filtering points by event day (17/18/19 Feb)
+  // If omitted, the point is shown on all days.
+  day?: string;
   description: string;
 };
 

@@ -4,44 +4,51 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import type { MapPoint, MapPointType } from "@/lib/types";
-import { MAP_TYPES } from "@/lib/data/mapa";
+import type { MapPoint } from "@/lib/types";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
 import { cn } from "@/lib/cn";
 
-type Filter = MapPointType;
+const FIXED_DAYS = ["2026-02-17", "2026-02-18", "2026-02-19"] as const;
+const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] as const;
 
-function TypeToggle({
+function formatDayShort(day: string) {
+  try {
+    const d = new Date(`${day}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return day;
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = MONTHS_ES[d.getMonth()] ?? "";
+    return mm ? `${dd} ${mm}` : dd;
+  } catch {
+    return day;
+  }
+}
+
+function DayToggle({
   value,
   onChange,
 }: {
-  value: Filter;
-  onChange: (v: Filter) => void;
+  value: string;
+  onChange: (v: string) => void;
 }) {
   return (
     <div
-      className="mx-auto w-[calc(100%-28px)] max-w-[440px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
-      role="radiogroup"
-      aria-label="Filtro de mapa"
+      className="mx-auto w-[calc(100%-28px)] max-w-[402px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
+      role="tablist"
+      aria-label="Días de mapa"
     >
       <div className="flex w-full items-center justify-between gap-6">
-        {MAP_TYPES.map((t) => {
-          const active = t.value === value;
-          const label =
-            t.value === "zona"
-              ? "Zonas"
-              : t.value === "encuentro"
-                ? "Punto"
-                : "Otros";
+        {FIXED_DAYS.map((d) => {
+          const active = d === value;
+          const label = formatDayShort(d);
           return (
             <button
-              key={t.value}
+              key={d}
               type="button"
-              role="radio"
-              aria-checked={active}
+              role="tab"
+              aria-selected={active}
               className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
-              onClick={() => onChange(t.value)}
+              onClick={() => onChange(d)}
             >
               <div
                 className={cn(
@@ -68,13 +75,13 @@ function TypeToggle({
 }
 
 export function MapaView({ points }: { points: MapPoint[] }) {
-  const [filter, setFilter] = useState<Filter>("zona");
+  const [day, setDay] = useState<string>(FIXED_DAYS[0]);
   const [openId, setOpenId] = useState<string | null>(null);
   const cfg = useAppConfig();
 
   const filtered = useMemo(
-    () => points.filter((p) => p.type === filter),
-    [points, filter],
+    () => points.filter((p) => !p.day || p.day === day),
+    [points, day],
   );
 
   const selected = useMemo(
@@ -137,7 +144,7 @@ export function MapaView({ points }: { points: MapPoint[] }) {
         className="fixed inset-x-0 z-20 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
-        <TypeToggle value={filter} onChange={setFilter} />
+        <DayToggle value={day} onChange={setDay} />
       </div>
 
       <Dialog.Root open={Boolean(openId)} onOpenChange={(o) => !o && setOpenId(null)}>

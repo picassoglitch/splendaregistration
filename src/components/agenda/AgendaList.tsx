@@ -38,7 +38,7 @@ export function AgendaList({ items }: { items: AgendaItem[] }) {
 
       {/* Bottom filter bar (wireframe-style) */}
       <div
-        className="fixed left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 px-[max(14px,var(--sal))] pr-[max(14px,var(--sar))]"
+        className="fixed inset-x-0 z-20 w-full px-[max(14px,var(--sal))] pr-[max(14px,var(--sar))] md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
         style={{ bottom: "calc(72px + max(10px, var(--sab)))" }}
       >
         <div className="px-2 pb-2">

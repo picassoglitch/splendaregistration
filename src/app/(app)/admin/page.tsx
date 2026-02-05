@@ -22,6 +22,32 @@ type TabKey = "branding" | "pages" | "data";
 type BgKey = keyof ReturnType<typeof useAppConfig>["backgrounds"];
 type PageKey = "global" | BgKey;
 
+// Agenda is now day-based (fixed 3-day event)
+const AGENDA_DAYS = ["2026-02-17", "2026-02-18", "2026-02-19"] as const;
+const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] as const;
+
+function formatDayShort(day: string) {
+  try {
+    const d = new Date(`${day}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return day;
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = MONTHS_ES[d.getMonth()] ?? "";
+    return mm ? `${dd} ${mm}` : dd;
+  } catch {
+    return day;
+  }
+}
+
+function normalizeAgendaItem(it: AgendaItem): AgendaItem {
+  return {
+    ...it,
+    // track is no longer used in the app UI; keep a safe default
+    track: "Otros",
+    // ensure it matches one of the day buttons (avoid "empty agenda" on the app)
+    day: (AGENDA_DAYS as readonly string[]).includes(it.day) ? it.day : AGENDA_DAYS[0],
+  };
+}
+
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -126,6 +152,7 @@ export default function AdminPage() {
   });
   const [agendaDraft, setAgendaDraft] = useState<AgendaItem[]>([]);
   const [mapDraft, setMapDraft] = useState<MapPoint[]>([]);
+  const [agendaNewDay, setAgendaNewDay] = useState<string>(AGENDA_DAYS[0]);
   const agendaFileRef = useRef<HTMLInputElement | null>(null);
   const mapFileRef = useRef<HTMLInputElement | null>(null);
 
@@ -181,7 +208,7 @@ export default function AdminPage() {
     const run = async () => {
       const a = await fetchAgendaOverride();
       setAgendaInfo({ overridden: Boolean(a), count: a?.length ?? 0 });
-      setAgendaDraft(a ?? []);
+      setAgendaDraft((a ?? []).map(normalizeAgendaItem));
       const m = await fetchMapOverride();
       setMapInfo({ overridden: Boolean(m), count: m?.length ?? 0 });
       setMapDraft(m ?? []);
@@ -674,21 +701,28 @@ export default function AdminPage() {
                         <Input label="Fin" value={it.endTime} onChange={(e) => setAgendaDraft((cur) => cur.map((x, i) => (i === idx ? { ...x, endTime: e.target.value } : x)))} />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        <Input label="Día (YYYY-MM-DD)" value={it.day} onChange={(e) => setAgendaDraft((cur) => cur.map((x, i) => (i === idx ? { ...x, day: e.target.value } : x)))} />
+                        <label className="text-[13px] font-semibold text-zinc-900">
+                          Día
+                          <select
+                            className="mt-2 h-12 w-full rounded-2xl border border-border bg-white px-4 text-[14px] font-semibold text-zinc-900 outline-none"
+                            value={(AGENDA_DAYS as readonly string[]).includes(it.day) ? it.day : AGENDA_DAYS[0]}
+                            onChange={(e) =>
+                              setAgendaDraft((cur) =>
+                                cur.map((x, i) =>
+                                  i === idx ? normalizeAgendaItem({ ...x, day: e.target.value }) : x,
+                                ),
+                              )
+                            }
+                          >
+                            {AGENDA_DAYS.map((d) => (
+                              <option key={d} value={d}>
+                                {formatDayShort(d)}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
                         <Input label="Salón" value={it.location} onChange={(e) => setAgendaDraft((cur) => cur.map((x, i) => (i === idx ? { ...x, location: e.target.value } : x)))} />
                       </div>
-                      <label className="text-[13px] font-semibold text-zinc-900">
-                        Track
-                        <select
-                          className="mt-2 h-12 w-full rounded-2xl border border-border bg-white px-4 text-[14px] font-semibold text-zinc-900 outline-none"
-                          value={it.track}
-                          onChange={(e) => setAgendaDraft((cur) => cur.map((x, i) => (i === idx ? { ...x, track: e.target.value as AgendaItem["track"] } : x)))}
-                        >
-                          <option value="Plenario">Plenario</option>
-                          <option value="Expositores">Expositores</option>
-                          <option value="Otros">Otros</option>
-                        </select>
-                      </label>
                       <label className="text-[13px] font-semibold text-zinc-900">
                         Descripción
                         <textarea
@@ -707,21 +741,36 @@ export default function AdminPage() {
                   onClick={() =>
                     setAgendaDraft((cur) => [
                       ...cur,
-                      {
-                        id: `evento-${cur.length + 1}`,
+                      normalizeAgendaItem({
+                        id: `evento-${agendaNewDay}-${cur.length + 1}`,
                         title: "",
                         startTime: "09:00",
                         endTime: "09:30",
-                        day: "2026-01-30",
-                        track: "Plenario",
+                        day: agendaNewDay,
+                        track: "Otros",
                         location: "",
                         description: "",
-                      },
+                      }),
                     ])
                   }
                 >
                   + Agregar evento
                 </button>
+
+                <label className="text-[13px] font-semibold text-zinc-900">
+                  Día para nuevo evento
+                  <select
+                    className="mt-2 h-12 w-full rounded-2xl border border-border bg-white px-4 text-[14px] font-semibold text-zinc-900 outline-none"
+                    value={agendaNewDay}
+                    onChange={(e) => setAgendaNewDay(e.target.value)}
+                  >
+                    {AGENDA_DAYS.map((d) => (
+                      <option key={d} value={d}>
+                        {formatDayShort(d)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
 
               <input
@@ -740,9 +789,10 @@ export default function AdminPage() {
                       setError("agenda.json inválido (estructura inesperada).");
                       return;
                     }
-                    await saveAgendaOverride(parsed as AgendaItem[]);
-                    setAgendaDraft(parsed as AgendaItem[]);
-                    setAgendaInfo({ overridden: true, count: (parsed as AgendaItem[]).length });
+                    const normalized = (parsed as AgendaItem[]).map(normalizeAgendaItem);
+                    await saveAgendaOverride(normalized);
+                    setAgendaDraft(normalized);
+                    setAgendaInfo({ overridden: true, count: normalized.length });
                     setError(null);
                   } catch {
                     setError("No se pudo leer agenda.json.");
