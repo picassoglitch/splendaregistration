@@ -14,7 +14,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #7f56ff 0%, #5b2be1 100%)",
+          background: "linear-gradient(180deg, #1C3D78 0%, #173A73 100%)",
           borderRadius: 110,
         }}
       >
@@ -26,15 +26,15 @@ export default function Icon() {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: 999,
-            background: "rgba(255,255,255,0.16)",
-            border: "1px solid rgba(255,255,255,0.22)",
+            background: "rgba(255,255,255,0.10)",
+            border: "1px solid rgba(255,255,255,0.24)",
             color: "white",
-            fontSize: 132,
+            fontSize: 112,
             fontWeight: 800,
             letterSpacing: -8,
           }}
         >
-          S
+          SS
         </div>
       </div>
     ),

@@ -16,15 +16,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Swat & Smart 2026",
-    template: "%s · Swat & Smart 2026",
+    default: "Sweet & Smart 2026",
+    template: "%s · Sweet & Smart 2026",
   },
-  description: "Event companion app para Swat & Smart 2026.",
-  applicationName: "Swat & Smart 2026",
+  description: "Event companion app para Sweet & Smart 2026.",
+  applicationName: "Sweet & Smart 2026",
+  icons: {
+    icon: [{ url: "/icon", type: "image/png" }],
+    apple: [{ url: "/apple-icon", type: "image/png" }],
+    shortcut: [{ url: "/icon", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Swat & Smart 2026",
+    title: "Sweet & Smart 2026",
   },
   formatDetection: {
     telephone: false,
