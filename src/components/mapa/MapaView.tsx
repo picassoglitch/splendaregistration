@@ -1,93 +1,88 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { List, Search, X } from "lucide-react";
 import type { MapPoint } from "@/lib/types";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
 import { cn } from "@/lib/cn";
+import { InteractiveMap } from "@/components/mapa/InteractiveMap";
+import { LocationList } from "@/components/mapa/LocationList";
+import { MapBottomSheet } from "@/components/mapa/MapBottomSheet";
 
-const FIXED_DAYS = ["2026-02-17", "2026-02-18", "2026-02-19"] as const;
-const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] as const;
+type LocationCategory = "areas_comunes" | "habitaciones" | "restaurantes";
+type LocationFilter = "todos" | LocationCategory;
 
-function formatDayShort(day: string) {
-  try {
-    const d = new Date(`${day}T00:00:00`);
-    if (Number.isNaN(d.getTime())) return day;
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = MONTHS_ES[d.getMonth()] ?? "";
-    return mm ? `${dd} ${mm}` : dd;
-  } catch {
-    return day;
-  }
-}
+// Local bundled asset (exported from the PDF as a high-res PNG).
+// Put the file at: `public/mapa.png`
+const MAP_IMAGE_SRC = "/mapa.png";
 
-function DayToggle({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div
-      className="mx-auto w-[calc(100%-28px)] max-w-[402px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
-      role="tablist"
-      aria-label="Días de mapa"
-    >
-      <div className="flex w-full items-center justify-between gap-6">
-        {FIXED_DAYS.map((d) => {
-          const active = d === value;
-          const label = formatDayShort(d);
-          return (
-            <button
-              key={d}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
-              onClick={() => onChange(d)}
-            >
-              <div
-                className={cn(
-                  "h-11 w-11 rounded-full ring-2 ring-white",
-                  active ? "bg-white/15" : "bg-transparent",
-                )}
-              >
-                <div
-                  className={cn(
-                    "mx-auto mt-[9px] h-5 w-5 rounded-full",
-                    active ? "bg-white" : "bg-transparent",
-                  )}
-                />
-              </div>
-              <div className={cn("text-[14px] font-extrabold", active ? "text-white" : "text-white/90")}>
-                {label}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+// Data-driven pin overlay using normalized coordinates (0..1 relative to the image).
+// TODO: Fine-tune x/y by comparing to the PNG in `/public/mapa.png`.
+// TODO: Add the rest of the numbered points from the map.
+export const MAP_LOCATIONS: {
+  id: number;
+  name: string;
+  category: LocationCategory;
+  x: number;
+  y: number;
+  description?: string;
+}[] = [
+  { id: 1, name: "Estacionamiento", category: "areas_comunes", x: 0.82, y: 0.48, description: "Descripción pendiente" },
+  { id: 3, name: "Recepción", category: "areas_comunes", x: 0.77, y: 0.50, description: "Descripción pendiente" },
+  { id: 9, name: "Soles", category: "areas_comunes", x: 0.28, y: 0.53, description: "Descripción pendiente" },
+  { id: 16, name: "Cactus", category: "habitaciones", x: 0.62, y: 0.58, description: "Descripción pendiente" },
+  { id: 19, name: "Fresnos", category: "habitaciones", x: 0.46, y: 0.34, description: "Descripción pendiente" },
+  { id: 26, name: "Naranjos", category: "restaurantes", x: 0.74, y: 0.42, description: "Descripción pendiente" },
+];
+
+const FILTERS: { key: LocationFilter; label: string }[] = [
+  { key: "todos", label: "Todos" },
+  { key: "areas_comunes", label: "Áreas comunes" },
+  { key: "habitaciones", label: "Habitaciones" },
+  { key: "restaurantes", label: "Restaurantes" },
+];
+
+function labelForCategory(cat: LocationCategory) {
+  if (cat === "areas_comunes") return "Áreas comunes";
+  if (cat === "habitaciones") return "Habitaciones";
+  return "Restaurantes";
 }
 
 export function MapaView({ points }: { points: MapPoint[] }) {
-  const [day, setDay] = useState<string>(FIXED_DAYS[0]);
-  const [openId, setOpenId] = useState<string | null>(null);
-  const cfg = useAppConfig();
+  // NOTE: `points` is kept for backward compatibility, but this screen now uses MAP_LOCATIONS.
+  void points;
 
-  const filtered = useMemo(
-    () => points.filter((p) => !p.day || p.day === day),
-    [points, day],
-  );
+  const [filter, setFilter] = useState<LocationFilter>("todos");
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [listOpen, setListOpen] = useState(false);
+  const cfg = useAppConfig();
+  const mapApiRef = useRef<{ centerOn: (x: number, y: number) => void } | null>(null);
 
   const selected = useMemo(
-    () => points.find((p) => p.id === openId) ?? null,
-    [points, openId],
+    () => MAP_LOCATIONS.find((x) => x.id === selectedId) ?? null,
+    [selectedId],
   );
+
+  const filteredLocations = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return MAP_LOCATIONS.filter((loc) => {
+      const okCat = filter === "todos" ? true : loc.category === filter;
+      const okQuery = !q ? true : loc.name.toLowerCase().includes(q) || String(loc.id).includes(q);
+      return okCat && okQuery;
+    });
+  }, [filter, query]);
+
+  const onPickLocation = (id: number) => {
+    setSelectedId(id);
+    const loc = MAP_LOCATIONS.find((x) => x.id === id);
+    if (loc) mapApiRef.current?.centerOn(loc.x, loc.y);
+  };
+
+  const title = selected ? `${selected.id}. ${selected.name}` : "Detalle";
 
   return (
     <div className="min-h-dvh text-white">
@@ -109,57 +104,86 @@ export function MapaView({ points }: { points: MapPoint[] }) {
           <div className="w-[46px]" />
         </div>
 
-        {/* Map placeholder card (like the mock white panel) */}
-        <div className="mt-8 rounded-[26px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.25)]">
-          <div className="aspect-[4/3] w-full rounded-[26px] bg-white" />
-        </div>
+        {/* Filters + Search */}
+        <div className="mt-6 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((f) => {
+              const active = f.key === filter;
+              return (
+                <button
+                  key={f.key}
+                  type="button"
+                  className={cn(
+                    "h-10 rounded-2xl px-4 text-[13px] font-extrabold ring-1 transition",
+                    active
+                      ? "bg-white text-[#173A73] ring-white/20 shadow-sm"
+                      : "bg-white/10 text-white ring-white/15 hover:bg-white/15 active:bg-white/20",
+                  )}
+                  onClick={() => setFilter(f.key)}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="mt-8">
-          <div className="text-[28px] font-extrabold tracking-tight">Descripción</div>
-          <div className="mt-3 text-[13px] leading-5 text-white/90">
-            {cfg.mapDescription}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/70" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar lugar…"
+              className={cn(
+                "h-12 w-full rounded-[24px] bg-white/10 pl-12 pr-4 text-[14px] font-semibold text-white outline-none",
+                "placeholder:text-white/45 ring-1 ring-white/15 focus:ring-2 focus:ring-white/25",
+              )}
+            />
           </div>
         </div>
 
-        {/* Points list is hidden in this mocky layout; tapping filters can open dialogs */}
-        <div className="mt-6 grid gap-3 pb-[110px]">
-          {filtered.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className="w-full rounded-2xl bg-white/10 px-4 py-3 text-left ring-1 ring-white/15"
-              onClick={() => setOpenId(p.id)}
-            >
-              <div className="text-[15px] font-extrabold text-white">{p.title}</div>
-              <div className="mt-1 line-clamp-2 text-[13px] font-semibold text-white/85">
-                {p.description}
-              </div>
-            </button>
-          ))}
+        <div className={cn("mt-6", "md:grid md:grid-cols-[1fr_320px] md:gap-4")}>
+          {/* Map card */}
+          <div className="rounded-[26px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.25)] overflow-hidden">
+            <InteractiveMap
+              imageSrc={MAP_IMAGE_SRC}
+              locations={filteredLocations}
+              selectedId={selectedId}
+              onPinClick={(id) => onPickLocation(id)}
+              apiRef={mapApiRef}
+            />
+          </div>
+
+          {/* List (side-by-side on wide screens) */}
+          <div className="mt-4 md:mt-0 hidden md:block">
+            <LocationList
+              title="Lista"
+              locations={filteredLocations}
+              selectedId={selectedId}
+              onSelect={(id) => onPickLocation(id)}
+            />
+          </div>
+        </div>
+
+        {/* Mobile collapsible list button */}
+        <div className="mt-4 pb-[110px] md:hidden">
+          <button
+            type="button"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[26px] bg-white/10 text-[14px] font-extrabold text-white ring-1 ring-white/15"
+            onClick={() => setListOpen(true)}
+          >
+            <List className="h-5 w-5" />
+            Lista
+          </button>
         </div>
       </div>
 
-      {/* Bottom type selector (circle controls like the mock) */}
-      <div
-        className="fixed inset-x-0 z-20 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
-        style={{ bottom: "max(14px, var(--sab))" }}
-      >
-        <DayToggle value={day} onChange={setDay} />
-      </div>
-
-      <Dialog.Root open={Boolean(openId)} onOpenChange={(o) => !o && setOpenId(null)}>
+      {/* Mobile list bottom-sheet */}
+      <Dialog.Root open={listOpen} onOpenChange={setListOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px]" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-28px)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white p-5 shadow-2xl ring-1 ring-black/10">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <Dialog.Title className="text-[16px] font-extrabold text-zinc-900">
-                  {selected?.title ?? "Detalle"}
-                </Dialog.Title>
-                <Dialog.Description className="mt-1 text-[13px] font-semibold text-zinc-600">
-                  {selected?.description ?? ""}
-                </Dialog.Description>
-              </div>
+          <Dialog.Content className="fixed inset-x-0 bottom-0 z-50 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2 rounded-t-[28px] bg-white shadow-2xl ring-1 ring-black/10">
+            <div className="flex items-center justify-between px-4 pt-4">
+              <div className="text-[14px] font-extrabold text-zinc-900">Lista</div>
               <Dialog.Close asChild>
                 <button
                   type="button"
@@ -170,9 +194,30 @@ export function MapaView({ points }: { points: MapPoint[] }) {
                 </button>
               </Dialog.Close>
             </div>
+            <div className="px-4 pb-4 pt-2">
+              <LocationList
+                title=""
+                compact
+                locations={filteredLocations}
+                selectedId={selectedId}
+                onSelect={(id) => {
+                  onPickLocation(id);
+                  setListOpen(false);
+                }}
+              />
+            </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      {/* Location bottom sheet */}
+      <MapBottomSheet
+        open={selectedId != null}
+        onOpenChange={(o) => !o && setSelectedId(null)}
+        title={title}
+        category={selected ? labelForCategory(selected.category) : ""}
+        description={selected?.description || "Descripción pendiente"}
+      />
     </div>
   );
 }
