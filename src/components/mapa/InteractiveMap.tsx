@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { MapPin } from "@/components/mapa/MapPin";
 
 export type MapLocation = {
+  key: string; // unique per pin instance (map has duplicate numbers)
   id: number;
   name: string;
   category: "areas_comunes" | "habitaciones" | "restaurantes";
@@ -24,8 +25,8 @@ export function InteractiveMap({
 }: {
   imageSrc: string;
   locations: MapLocation[];
-  selectedId: number | null;
-  onPinClick: (id: number) => void;
+  selectedId: string | null;
+  onPinClick: (key: string) => void;
   apiRef?: React.MutableRefObject<{ centerOn: (x: number, y: number) => void } | null>;
 }) {
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
@@ -107,12 +108,12 @@ export function InteractiveMap({
             <div className="absolute inset-0">
               {pins.map((p) => (
                 <MapPin
-                  key={p.id}
+                  key={p.key}
                   id={p.id}
                   x={p.x}
                   y={p.y}
-                  active={selectedId === p.id}
-                  onClick={() => onPinClick(p.id)}
+                  active={selectedId === p.key}
+                  onClick={() => onPinClick(p.key)}
                 />
               ))}
             </div>

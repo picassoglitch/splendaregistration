@@ -13,8 +13,8 @@ export function LocationList({
 }: {
   title: string;
   locations: MapLocation[];
-  selectedId: number | null;
-  onSelect: (id: number) => void;
+  selectedId: string | null;
+  onSelect: (key: string) => void;
   compact?: boolean;
 }) {
   return (
@@ -26,12 +26,12 @@ export function LocationList({
       <div className={cn("mt-3 grid gap-2", compact ? "mt-1" : null)}>
         {locations.length ? (
           locations.map((loc) => {
-            const active = selectedId === loc.id;
+            const active = selectedId === loc.key;
             return (
               <button
-                key={loc.id}
+                key={loc.key}
                 type="button"
-                onClick={() => onSelect(loc.id)}
+                onClick={() => onSelect(loc.key)}
                 className={cn(
                   "w-full rounded-2xl px-3 py-3 text-left ring-1 transition",
                   active
