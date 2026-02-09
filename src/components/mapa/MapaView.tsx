@@ -16,11 +16,19 @@ type LocationCategory = "areas_comunes" | "habitaciones" | "restaurantes";
 type LocationFilter = "todos" | LocationCategory;
 
 // Local bundled asset (exported from the PDF as a high-res PNG).
-// Put the file at: `public/mapa.png`
-const MAP_IMAGE_SRC = "/mapa.png";
+// Put the file at: `public/event-map.png`
+//
+// BasePath-safe for Vercel/Next.js `basePath` deployments.
+// In the App Router we don't have `next/router` basePath, so we use the runtime global
+// that Next.js sets internally.
+const BASE_PATH =
+  typeof window !== "undefined" && (window as any).__NEXT_ROUTER_BASEPATH
+    ? String((window as any).__NEXT_ROUTER_BASEPATH)
+    : "";
+const MAP_IMAGE_SRC = `${BASE_PATH}/event-map.png`;
 
 // Data-driven pin overlay using normalized coordinates (0..1 relative to the image).
-// TODO: Fine-tune x/y by comparing to the PNG in `/public/mapa.png`.
+// TODO: Fine-tune x/y by comparing to the PNG in `/public/event-map.png`.
 // TODO: Add the rest of the numbered points from the map.
 export const MAP_LOCATIONS: {
   id: number;

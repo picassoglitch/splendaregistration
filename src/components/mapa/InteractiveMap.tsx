@@ -2,7 +2,7 @@
 "use client";
 
 import { TransformComponent, TransformWrapper, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { MapPin } from "@/components/mapa/MapPin";
 
@@ -31,6 +31,13 @@ export function InteractiveMap({
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const [src, setSrc] = useState(imageSrc);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setSrc(imageSrc);
+    setFailed(false);
+  }, [imageSrc]);
 
   const centerOn = (x: number, y: number) => {
     const inst = transformRef.current;
@@ -90,10 +97,11 @@ export function InteractiveMap({
         >
           <div ref={contentRef} className="relative w-full h-full select-none">
             <img
-              src={imageSrc}
+              src={src}
               alt="Mapa del evento"
               className="absolute inset-0 h-full w-full object-contain"
               draggable={false}
+              onError={() => setFailed(true)}
             />
 
             <div className="absolute inset-0">
@@ -111,6 +119,28 @@ export function InteractiveMap({
           </div>
         </TransformComponent>
       </TransformWrapper>
+
+      {failed ? (
+        <div className="absolute inset-0 flex items-center justify-center p-6">
+          <div className="w-full max-w-[360px] rounded-3xl bg-white px-5 py-5 text-center shadow-2xl ring-1 ring-black/10">
+            <div className="text-[14px] font-extrabold text-zinc-900">No se pudo cargar el mapa</div>
+            <div className="mt-1 text-[12px] font-semibold text-zinc-600">
+              Revisa que exista <span className="font-bold">`public/event-map.png`</span>.
+            </div>
+            <button
+              type="button"
+              className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-2xl bg-[#173A73] text-[13px] font-extrabold text-white shadow-sm"
+              onClick={() => {
+                setFailed(false);
+                const sep = imageSrc.includes("?") ? "&" : "?";
+                setSrc(`${imageSrc}${sep}v=${Date.now()}`);
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
