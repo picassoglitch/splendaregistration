@@ -45,7 +45,7 @@ export function MapaView({ points }: { points: MapPoint[] }) {
         </div>
 
         {/* Map (image + pinch-to-zoom + pan) */}
-        <div className="mt-8 rounded-[26px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.25)] overflow-hidden pb-[110px]">
+        <div className="mt-8 rounded-[26px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.25)] overflow-hidden">
           <InteractiveMap
             imageSrc={MAP_IMAGE_SRC}
             locations={[]}

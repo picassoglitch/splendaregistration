@@ -74,11 +74,11 @@ export function InteractiveMap({
     <div
       ref={viewportRef}
       className={cn(
-        "relative w-full",
-        // Keep a tall viewport like the real map (portrait)
-        "h-[520px] md:h-[640px]",
-        "bg-white",
+        "relative w-full bg-white",
       )}
+      // Avoid large blank areas; size the map viewport to the screen.
+      // Users can still zoom/pan to see details.
+      style={{ height: "min(72dvh, 860px)" }}
     >
       <TransformWrapper
         ref={transformRef}
