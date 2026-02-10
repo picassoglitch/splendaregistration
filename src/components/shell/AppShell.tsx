@@ -159,6 +159,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         style={
           bgUrl
             ? {
+                backgroundColor: "#1C3D78", // prevent white flash while image loads
                 backgroundImage: `url(${bgUrl})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",

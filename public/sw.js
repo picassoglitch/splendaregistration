@@ -2,7 +2,7 @@
    Replace/extend with Workbox later if desired. */
 
 // Bump this to invalidate older caches on deploys.
-const CACHE_NAME = "ss2026-v4";
+const CACHE_NAME = "ss2026-v5";
 // Only cache immutable/static assets. Avoid caching HTML to prevent hydration mismatches after updates.
 const CORE_ASSETS = ["/splash.png"];
 
@@ -36,6 +36,12 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  // Always fetch the latest map (avoid stale cached map image after deploy).
+  if (url.pathname === "/event-map.png") {
+    event.respondWith(fetch(req, { cache: "no-store" }));
+    return;
+  }
 
   // Never cache API responses (roles/config/auth gating must always be fresh)
   if (url.pathname.startsWith("/api/")) {

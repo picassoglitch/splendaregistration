@@ -34,6 +34,7 @@ export function InteractiveMap({
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [src, setSrc] = useState(imageSrc);
   const [failed, setFailed] = useState(false);
+  const [ratio, setRatio] = useState<{ w: number; h: number } | null>(null);
 
   useEffect(() => {
     setSrc(imageSrc);
@@ -93,15 +94,28 @@ export function InteractiveMap({
       >
         <TransformComponent
           wrapperClass="!w-full !h-full"
-          contentClass="!w-full !h-full"
+          contentClass="!w-full"
           wrapperStyle={{ width: "100%", height: "100%", touchAction: "none" }}
         >
-          <div ref={contentRef} className="relative w-full h-full select-none">
+          <div
+            ref={contentRef}
+            className="relative w-full select-none"
+            style={{
+              // Portrait map: keep natural aspect ratio so users can pan to the bottom (even at scale=1).
+              aspectRatio: ratio ? `${ratio.w} / ${ratio.h}` : "9 / 16",
+            }}
+          >
             <img
               src={src}
               alt="Mapa del evento"
               className="absolute inset-0 h-full w-full object-contain"
               draggable={false}
+              onLoad={(e) => {
+                const img = e.currentTarget;
+                if (img.naturalWidth && img.naturalHeight) {
+                  setRatio({ w: img.naturalWidth, h: img.naturalHeight });
+                }
+              }}
               onError={() => setFailed(true)}
             />
 
