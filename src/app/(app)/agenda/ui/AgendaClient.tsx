@@ -2,46 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { AgendaItem } from "@/lib/types";
-import { getAgendaItems } from "@/lib/data/agenda";
-import { DATA_EVENT, fetchAgendaOverride } from "@/lib/data/overrides";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
 import { cn } from "@/lib/cn";
-
-function sortAgenda(items: AgendaItem[]) {
-  return items.slice().sort((a, b) => {
-    if (a.day !== b.day) return a.day.localeCompare(b.day);
-    return a.startTime.localeCompare(b.startTime);
-  });
-}
-
-const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] as const;
-
-// Fixed agenda day buttons (per requirements)
-const FIXED_DAYS = ["2026-02-17", "2026-02-18", "2026-02-19"] as const;
-
-function formatDayShort(day: string) {
-  // expected: YYYY-MM-DD
-  try {
-    const d = new Date(`${day}T00:00:00`);
-    if (Number.isNaN(d.getTime())) return day;
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = MONTHS_ES[d.getMonth()] ?? "";
-    return mm ? `${dd} ${mm}` : dd;
-  } catch {
-    return day;
-  }
-}
+import { AGENDA, AGENDA_DAYS, type AgendaDayKey } from "@/lib/data/agendaByDay";
 
 function DayToggle({
   value,
   onChange,
-  options,
 }: {
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
+  value: AgendaDayKey;
+  onChange: (v: AgendaDayKey) => void;
 }) {
   return (
     <div
@@ -50,17 +22,16 @@ function DayToggle({
       aria-label="Días de agenda"
     >
       <div className="flex w-full items-center justify-between gap-6">
-        {options.map((opt) => {
-          const active = opt === value;
-          const label = formatDayShort(opt);
+        {AGENDA_DAYS.map((opt) => {
+          const active = opt.key === value;
           return (
             <button
-              key={opt}
+              key={opt.key}
               type="button"
               role="tab"
               aria-selected={active}
               className="flex flex-col items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-white/25 rounded-2xl px-2 py-1"
-              onClick={() => onChange(opt)}
+              onClick={() => onChange(opt.key)}
             >
               <div
                 className={cn(
@@ -76,7 +47,7 @@ function DayToggle({
                 />
               </div>
               <div className={cn("text-[14px] font-extrabold", active ? "text-white" : "text-white/90")}>
-                {label}
+                {opt.label}
               </div>
             </button>
           );
@@ -88,37 +59,21 @@ function DayToggle({
 
 export function AgendaClient() {
   const cfg = useAppConfig();
-  const [override, setOverride] = useState<AgendaItem[] | null>(null);
-  const [day, setDay] = useState<string>(FIXED_DAYS[0]);
+  const router = useRouter();
+  const params = useSearchParams();
+  const [day, setDay] = useState<AgendaDayKey>(AGENDA_DAYS[0].key);
 
   useEffect(() => {
-    let cancelled = false;
-    const refresh = async () => {
-      const next = await fetchAgendaOverride();
-      if (!cancelled) setOverride(next);
-    };
-    const onEvent = () => {
-      refresh().catch(() => undefined);
-    };
-    refresh().catch(() => undefined);
-    const t = window.setInterval(() => refresh().catch(() => undefined), 2000);
-    window.addEventListener(DATA_EVENT, onEvent as EventListener);
-    return () => {
-      cancelled = true;
-      window.clearInterval(t);
-      window.removeEventListener(DATA_EVENT, onEvent as EventListener);
-    };
-  }, []);
+    const q = (params?.get("day") || "").trim().toLowerCase();
+    if (q === "17-feb" || q === "18-feb" || q === "19-feb") {
+      setDay(q);
+    }
+  }, [params]);
 
-  const items = useMemo(() => {
-    const base = override ?? getAgendaItems();
-    return sortAgenda(base);
-  }, [override]);
+  const items = useMemo(() => AGENDA[day] ?? [], [day]);
 
-  const filtered = useMemo(() => {
-    if (!day) return items;
-    return items.filter((x) => x.day === day);
-  }, [items, day]);
+  const dayLabel = useMemo(() => AGENDA_DAYS.find((d) => d.key === day)?.label ?? "", [day]);
+  const displayTime = (start: string, end: string) => `${start}–${end}`;
 
   return (
     <div className="min-h-dvh text-white">
@@ -137,47 +92,81 @@ export function AgendaClient() {
               {cfg.agendaTitle || "AGENDA"}
             </div>
             <div className="mt-1 text-[18px] font-semibold text-white/90">
-              {day ? formatDayShort(day) : ""}
+              {dayLabel}
             </div>
           </div>
           <div className="w-[46px]" />
         </div>
 
         <div className="mt-10">
-          <div className="grid grid-cols-[72px_1fr_74px] gap-3 px-2 text-[13px] font-semibold text-white/80">
-            <div className="text-left"> </div>
-            <div className="text-center"> </div>
-            <div className="text-right"> </div>
+          {/* Desktop/tablet table */}
+          <div className="hidden md:block">
+            <div className="grid grid-cols-[180px_110px_1fr_170px] gap-3 px-2 text-[12px] font-bold tracking-[0.12em] text-white/70">
+              <div>HORARIO</div>
+              <div>DURACIÓN</div>
+              <div>ACTIVIDAD</div>
+              <div className="text-right">LUGAR</div>
+            </div>
+            <div className="mt-3 grid gap-3 pb-[110px]">
+              {items.length ? (
+                items.map((it, idx) => (
+                  <div
+                    key={`${day}-${idx}-${it.start}-${it.activity}`}
+                    className="grid grid-cols-[180px_110px_1fr_170px] items-start gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15"
+                  >
+                    <div className="text-[14px] font-extrabold text-white">{displayTime(it.start, it.end)}</div>
+                    <div className="text-[13px] font-semibold text-white/90">{it.duration}</div>
+                    <div className="text-[13px] font-semibold text-white/95">{it.activity}</div>
+                    <div className="text-right text-[13px] font-semibold text-white/90">{it.place}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="mt-3 rounded-2xl bg-white/10 px-4 py-4 text-[13px] font-semibold text-white/85 ring-1 ring-white/15">
+                  No hay actividades para este día.
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="mt-3 grid gap-4 pb-[110px]">
-            {filtered.map((item) => (
-              <Link
-                key={item.id}
-                href={`/agenda/${encodeURIComponent(item.id)}`}
-                className="grid grid-cols-[72px_1fr_74px] items-center gap-3 px-2"
-              >
-                <div className="text-[16px] font-semibold text-white">
-                  {item.startTime}
+          {/* Mobile cards */}
+          <div className="md:hidden">
+            <div className="mt-3 grid gap-3 pb-[110px]">
+              {items.length ? (
+                items.map((it, idx) => (
+                  <div
+                    key={`${day}-${idx}-${it.start}-${it.activity}`}
+                    className="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/15"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <div className="text-[14px] font-extrabold text-white">{displayTime(it.start, it.end)}</div>
+                      <div className="text-[12px] font-semibold text-white/85">{it.duration}</div>
+                    </div>
+                    <div className="mt-2 text-[14px] font-semibold text-white/95">{it.activity}</div>
+                    <div className="mt-2 text-[13px] font-semibold text-white/85">{it.place}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl bg-white/10 px-4 py-4 text-[13px] font-semibold text-white/85 ring-1 ring-white/15">
+                  No hay actividades para este día.
                 </div>
-                <div className="text-center text-[14px] font-medium text-white/95">
-                  {item.title}
-                </div>
-                <div className="text-right text-[14px] font-medium text-white/95">
-                  {item.location}
-                </div>
-              </Link>
-            ))}
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom track selector */}
+      {/* Bottom day selector */}
       <div
         className="fixed inset-x-0 z-20 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
         style={{ bottom: "max(14px, var(--sab))" }}
       >
-        <DayToggle value={day} onChange={setDay} options={[...FIXED_DAYS]} />
+        <DayToggle
+          value={day}
+          onChange={(next) => {
+            setDay(next);
+            router.replace(`/agenda?day=${encodeURIComponent(next)}`);
+          }}
+        />
       </div>
     </div>
   );
