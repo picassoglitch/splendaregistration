@@ -17,7 +17,12 @@ const BASE_PATH =
   typeof window !== "undefined" && (window as any).__NEXT_ROUTER_BASEPATH
     ? String((window as any).__NEXT_ROUTER_BASEPATH)
     : "";
-const MAP_IMAGE_SRC = `${BASE_PATH}/event-map.png`;
+const BUILD_ID =
+  typeof window !== "undefined" && (window as any).__NEXT_DATA__?.buildId
+    ? String((window as any).__NEXT_DATA__?.buildId)
+    : "";
+// Cache-bust per deploy so users don't get the previous event-map.png on Vercel/CDN.
+const MAP_IMAGE_SRC = `${BASE_PATH}/event-map.png${BUILD_ID ? `?v=${BUILD_ID}` : ""}`;
 
 export function MapaView({ points }: { points: MapPoint[] }) {
   void points;

@@ -87,6 +87,7 @@ export function InteractiveMap({
         maxScale={6}
         initialScale={1}
         centerOnInit
+        limitToBounds={false}
         wheel={{ step: 0.08 }}
         doubleClick={{ disabled: true }}
         panning={{ velocityDisabled: true }}
