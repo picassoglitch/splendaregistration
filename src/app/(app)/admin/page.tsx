@@ -126,8 +126,6 @@ export default function AdminPage() {
   const [mapDescription, setMapDescription] = useState(cfg.mapDescription);
   const [mapTitle, setMapTitle] = useState(cfg.mapTitle);
   const [mapPageHeading, setMapPageHeading] = useState(cfg.mapPageHeading);
-  const [privacyText, setPrivacyText] = useState(cfg.privacyText);
-  const [privacyTitle, setPrivacyTitle] = useState(cfg.privacyTitle);
   const [unlockPlaceholder, setUnlockPlaceholder] = useState(cfg.unlockPlaceholder);
   const [unlockButtonText, setUnlockButtonText] = useState(cfg.unlockButtonText);
   const [unlockFooterText, setUnlockFooterText] = useState(cfg.unlockFooterText);
@@ -171,8 +169,6 @@ export default function AdminPage() {
     setMapDescription(cfg.mapDescription);
     setMapTitle(cfg.mapTitle);
     setMapPageHeading(cfg.mapPageHeading);
-    setPrivacyText(cfg.privacyText);
-    setPrivacyTitle(cfg.privacyTitle);
     setUnlockPlaceholder(cfg.unlockPlaceholder);
     setUnlockButtonText(cfg.unlockButtonText);
     setUnlockFooterText(cfg.unlockFooterText);
@@ -192,8 +188,6 @@ export default function AdminPage() {
     cfg.mapDescription,
     cfg.mapTitle,
     cfg.mapPageHeading,
-    cfg.privacyText,
-    cfg.privacyTitle,
     cfg.unlockPlaceholder,
     cfg.unlockButtonText,
     cfg.unlockFooterText,
@@ -253,8 +247,6 @@ export default function AdminPage() {
       mapDescription: mapDescription.trim(),
       mapTitle: mapTitle.trim(),
       mapPageHeading: mapPageHeading.trim(),
-      privacyText,
-      privacyTitle: privacyTitle.trim(),
       unlockPlaceholder: unlockPlaceholder.trim(),
       unlockButtonText: unlockButtonText.trim(),
       unlockFooterText: unlockFooterText.trim(),
@@ -428,7 +420,6 @@ export default function AdminPage() {
                     <option value="agenda">Agenda</option>
                     <option value="agendaDetail">Agenda detalle</option>
                     <option value="mapa">Mapa</option>
-                    <option value="privacidad">Privacidad</option>
                     <option value="admin">Admin</option>
                   </select>
                 </label>
@@ -601,24 +592,6 @@ export default function AdminPage() {
                         className="mt-2 min-h-[96px] w-full resize-y rounded-2xl border border-border bg-white px-4 py-3 text-[14px] text-zinc-900 shadow-sm outline-none"
                         value={mapDescription}
                         onChange={(e) => setMapDescription(e.target.value)}
-                      />
-                    </label>
-                  </div>
-                ) : null}
-
-                {pageKey === "privacidad" ? (
-                  <div className="grid gap-4">
-                    <Input
-                      label="Título"
-                      value={privacyTitle}
-                      onChange={(e) => setPrivacyTitle(e.target.value)}
-                    />
-                    <label className="text-[13px] font-semibold text-zinc-900">
-                      Texto
-                      <textarea
-                        className="mt-2 min-h-[220px] w-full resize-y rounded-2xl border border-border bg-white px-4 py-3 text-[14px] text-zinc-900 shadow-sm outline-none"
-                        value={privacyText}
-                        onChange={(e) => setPrivacyText(e.target.value)}
                       />
                     </label>
                   </div>

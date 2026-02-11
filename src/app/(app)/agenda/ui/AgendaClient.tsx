@@ -98,7 +98,18 @@ export function AgendaClient() {
           <div className="w-[46px]" />
         </div>
 
-        <div className="mt-10">
+        {/* Day buttons (top) */}
+        <div className="mt-6">
+          <DayToggle
+            value={day}
+            onChange={(next) => {
+              setDay(next);
+              router.replace(`/agenda?day=${encodeURIComponent(next)}`);
+            }}
+          />
+        </div>
+
+        <div className="mt-8">
           {/* Desktop/tablet table */}
           <div className="hidden md:block">
             <div className="grid grid-cols-[180px_110px_1fr_170px] gap-3 px-2 text-[12px] font-bold tracking-[0.12em] text-white/70">
@@ -107,7 +118,7 @@ export function AgendaClient() {
               <div>ACTIVIDAD</div>
               <div className="text-right">LUGAR</div>
             </div>
-            <div className="mt-3 grid gap-3 pb-[110px]">
+            <div className="mt-3 grid gap-3 pb-10">
               {items.length ? (
                 items.map((it, idx) => (
                   <div
@@ -130,7 +141,7 @@ export function AgendaClient() {
 
           {/* Mobile cards */}
           <div className="md:hidden">
-            <div className="mt-3 grid gap-3 pb-[110px]">
+            <div className="mt-3 grid gap-3 pb-10">
               {items.length ? (
                 items.map((it, idx) => (
                   <div
@@ -153,20 +164,6 @@ export function AgendaClient() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom day selector */}
-      <div
-        className="fixed inset-x-0 z-20 w-full md:left-1/2 md:max-w-[430px] md:-translate-x-1/2"
-        style={{ bottom: "max(14px, var(--sab))" }}
-      >
-        <DayToggle
-          value={day}
-          onChange={(next) => {
-            setDay(next);
-            router.replace(`/agenda?day=${encodeURIComponent(next)}`);
-          }}
-        />
       </div>
     </div>
   );

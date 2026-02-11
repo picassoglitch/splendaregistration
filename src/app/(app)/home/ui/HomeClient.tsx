@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { SupportFooter } from "@/components/SupportFooter";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
@@ -73,12 +72,7 @@ export function HomeClient() {
         </div>
 
         <div className="mt-auto w-full pb-6 pt-8 text-center">
-          <Link href="/privacidad" className="text-[16px] font-semibold text-white/90">
-            {cfg.privacyTitle || "Aviso de Privacidad"}
-          </Link>
-          <div className="mt-2">
-            <SupportFooter />
-          </div>
+          <SupportFooter />
         </div>
       </div>
     </div>
