@@ -32,14 +32,10 @@ export function InteractiveMap({
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const [src, setSrc] = useState(imageSrc);
+  const [overrideSrc, setOverrideSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [ratio, setRatio] = useState<{ w: number; h: number } | null>(null);
-
-  useEffect(() => {
-    setSrc(imageSrc);
-    setFailed(false);
-  }, [imageSrc]);
+  const src = overrideSrc ?? imageSrc;
 
   const centerOn = (x: number, y: number) => {
     const inst = transformRef.current;
@@ -149,7 +145,7 @@ export function InteractiveMap({
               onClick={() => {
                 setFailed(false);
                 const sep = imageSrc.includes("?") ? "&" : "?";
-                setSrc(`${imageSrc}${sep}v=${Date.now()}`);
+                setOverrideSrc(`${imageSrc}${sep}v=${Date.now()}`);
               }}
             >
               Reintentar

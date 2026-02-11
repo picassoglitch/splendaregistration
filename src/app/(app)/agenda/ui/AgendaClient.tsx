@@ -79,12 +79,16 @@ export function AgendaClient() {
     <div className="min-h-dvh text-white">
       <div className="px-6 pt-[max(26px,var(--sat))]">
         <div className="flex items-center justify-between">
-          <Link href="/home" aria-label="Ir a inicio">
+          <Link
+            href="/home"
+            aria-label="Ir a inicio"
+            className="inline-flex rounded-full bg-white/10 p-1 ring-1 ring-white/15 backdrop-blur-sm shadow-[0_12px_30px_rgba(0,0,0,0.25)]"
+          >
             <EventLogo
               logoUrl={cfg.logoUrl}
-              size={46}
-              frame={cfg.logoStyle !== "plain"}
-              className={cfg.logoStyle !== "plain" ? "rounded-full shadow-[0_14px_36px_rgba(0,0,0,0.35)]" : ""}
+              size={88}
+              frame
+              className="rounded-full ring-0 shadow-none"
             />
           </Link>
           <div className="flex-1 text-center">
@@ -95,7 +99,7 @@ export function AgendaClient() {
               {dayLabel}
             </div>
           </div>
-          <div className="w-[46px]" />
+          <div className="w-[88px]" />
         </div>
 
         {/* Day buttons (top) */}

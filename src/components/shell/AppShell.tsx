@@ -80,11 +80,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ? "agendaDetail"
           : pathname === "/mapa"
             ? "mapa"
-            : pathname === "/privacidad"
-              ? "privacidad"
-              : pathname === "/admin"
-                ? "admin"
-                : null;
+          : pathname === "/admin"
+            ? "admin"
+            : null;
   const bgUrl = bgKey ? cfg.backgrounds?.[bgKey]?.trim() : "";
 
   return (
