@@ -69,6 +69,9 @@ export function HomeClient() {
           <button type="button" className={btn} onClick={() => router.push("/mapa")}>
             {(cfg.homeMapLabel || "MAPA").toUpperCase()}
           </button>
+          <button type="button" className={btn} onClick={() => router.push("/dresscode")}>
+            {"DRESSCODE"}
+          </button>
         </div>
 
         <div className="mt-auto w-full pb-6 pt-8 text-center">
