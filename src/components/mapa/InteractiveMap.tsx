@@ -6,6 +6,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { MapPin } from "@/components/mapa/MapPin";
 
+/*
+ * VISUAL REGRESSION CHECKLIST (map):
+ * - iPhone SE 390px: image centered, no crop, fits viewport
+ * - iPhone 14 428px: same
+ * - Desktop 1024px: image centered in card, scales nicely
+ */
+
 export type MapLocation = {
   key: string; // unique per pin instance (map has duplicate numbers)
   id: number;
@@ -70,12 +77,11 @@ export function InteractiveMap({
   return (
     <div
       ref={viewportRef}
-      className={cn(
-        "relative w-full bg-white",
-      )}
-      // Avoid large blank areas; size the map viewport to the screen.
-      // Users can still zoom/pan to see details.
-      style={{ height: "min(72dvh, 860px)" }}
+      className="relative w-full bg-[#e8e8e8]"
+      style={{
+        height: "min(72dvh, 520px)",
+        minHeight: 280,
+      }}
     >
       <TransformWrapper
         ref={transformRef}
@@ -98,14 +104,13 @@ export function InteractiveMap({
             ref={contentRef}
             className="relative w-full select-none"
             style={{
-              // Portrait map: keep natural aspect ratio so users can pan to the bottom (even at scale=1).
-              aspectRatio: ratio ? `${ratio.w} / ${ratio.h}` : "9 / 16",
+              aspectRatio: ratio ? `${ratio.w} / ${ratio.h}` : "4 / 5",
             }}
           >
             <img
               src={src}
               alt="Mapa del evento"
-              className="absolute inset-0 h-full w-full object-contain"
+              className="absolute inset-0 h-full w-full object-contain object-center"
               draggable={false}
               onLoad={(e) => {
                 const img = e.currentTarget;

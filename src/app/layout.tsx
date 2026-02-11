@@ -1,3 +1,8 @@
+/*
+ * VISUAL REGRESSION CHECKLIST (global):
+ * - Mobile 390px, 428px: no horizontal scroll, content fits
+ * - Desktop 1024px: phone frame max-w-[430px] centered, no crop
+ */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

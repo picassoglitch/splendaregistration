@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppConfig } from "@/lib/content/useAppConfig";
-import { EventLogo } from "@/components/branding/EventLogo";
+import { HeaderLogoLink } from "@/components/branding/HeaderLogoLink";
 import { cn } from "@/lib/cn";
 import { AGENDA, AGENDA_DAYS, type AgendaDayKey } from "@/lib/data/agendaByDay";
 
@@ -79,18 +78,7 @@ export function AgendaClient() {
     <div className="min-h-dvh text-white">
       <div className="px-6 pt-[max(26px,var(--sat))]">
         <div className="flex items-center justify-between">
-          <Link
-            href="/home"
-            aria-label="Ir a inicio"
-            className="inline-flex rounded-full bg-white/10 p-1 ring-1 ring-white/15 backdrop-blur-sm shadow-[0_12px_30px_rgba(0,0,0,0.25)]"
-          >
-            <EventLogo
-              logoUrl={cfg.logoUrl}
-              size={88}
-              frame
-              className="rounded-full ring-0 shadow-none"
-            />
-          </Link>
+          <HeaderLogoLink />
           <div className="flex-1 text-center">
             <div className="text-[34px] font-extrabold tracking-[0.06em]">
               {cfg.agendaTitle || "AGENDA"}
