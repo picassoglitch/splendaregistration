@@ -2,7 +2,7 @@
    Replace/extend with Workbox later if desired. */
 
 // Bump this to invalidate older caches on deploys.
-const CACHE_NAME = "ss2026-v5";
+const CACHE_NAME = "ss2026-v6";
 // Only cache immutable/static assets. Avoid caching HTML to prevent hydration mismatches after updates.
 const CORE_ASSETS = ["/splash.png"];
 
@@ -37,6 +37,12 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // Never cache Next.js build assets (prevents broken deploys when chunk names change).
+  if (url.pathname.startsWith("/_next/")) {
+    event.respondWith(fetch(req, { cache: "no-store" }));
+    return;
+  }
+
   // Always fetch the latest map (avoid stale cached map image after deploy).
   if (url.pathname === "/event-map.png") {
     event.respondWith(fetch(req, { cache: "no-store" }));
@@ -63,8 +69,11 @@ self.addEventListener("fetch", (event) => {
       const cached = await caches.match(req);
       if (cached) return cached;
       const fresh = await fetch(req);
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(req, fresh.clone());
+      // Only cache successful responses; never store 404/500 responses.
+      if (fresh && fresh.ok) {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(req, fresh.clone());
+      }
       return fresh;
     })(),
   );
