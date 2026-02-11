@@ -80,6 +80,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ? "agendaDetail"
           : pathname === "/mapa"
             ? "mapa"
+            : pathname === "/dresscode"
+              ? "home"
           : pathname === "/admin"
             ? "admin"
             : null;

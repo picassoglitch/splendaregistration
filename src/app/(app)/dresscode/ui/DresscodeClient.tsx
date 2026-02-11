@@ -3,24 +3,9 @@
 import Link from "next/link";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
-import { cn } from "@/lib/cn";
-import { useMemo } from "react";
-
-type NextWindow = {
-  __NEXT_ROUTER_BASEPATH?: string;
-  __NEXT_DATA__?: { buildId?: string };
-};
-
-function pdfSrc() {
-  const win = typeof window !== "undefined" ? (window as unknown as NextWindow) : null;
-  const basePath = win?.__NEXT_ROUTER_BASEPATH ? String(win.__NEXT_ROUTER_BASEPATH) : "";
-  const buildId = win?.__NEXT_DATA__?.buildId ? String(win.__NEXT_DATA__.buildId) : "";
-  return `${basePath}/dresscode.pdf${buildId ? `?v=${buildId}` : ""}`;
-}
 
 export function DresscodeClient() {
   const cfg = useAppConfig();
-  const src = useMemo(() => pdfSrc(), []);
 
   return (
     <div className="min-h-dvh text-white">
@@ -128,30 +113,6 @@ export function DresscodeClient() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-              <a
-                href={src}
-                target="_blank"
-                rel="noreferrer"
-                className={cn(
-                  "inline-flex h-11 w-full items-center justify-center rounded-2xl sm:w-auto sm:flex-1",
-                  "bg-[#173A73] text-white text-[13px] font-extrabold shadow-sm",
-                )}
-              >
-                Abrir PDF
-              </a>
-              <a
-                href={src}
-                download
-                className={cn(
-                  "inline-flex h-11 w-full items-center justify-center rounded-2xl sm:w-auto sm:flex-1",
-                  "bg-zinc-900 text-white text-[13px] font-extrabold shadow-sm",
-                )}
-              >
-                Descargar PDF
-              </a>
             </div>
           </div>
         </div>

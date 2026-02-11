@@ -5,7 +5,7 @@ export function EventLogo({
   logoUrl,
   size = 56,
   className,
-  fit = "contain",
+  fit,
   frame = true,
 }: {
   logoUrl?: string;
@@ -14,8 +14,9 @@ export function EventLogo({
   fit?: "contain" | "cover";
   frame?: boolean;
 }) {
+  const effectiveFit = fit ?? (frame ? "cover" : "contain");
   if (logoUrl) {
-    const pad = fit === "contain" ? Math.max(2, Math.round(size * 0.08)) : 0;
+    const pad = effectiveFit === "contain" ? Math.max(2, Math.round(size * 0.08)) : 0;
     return (
       <div
         className={cn(
@@ -33,7 +34,7 @@ export function EventLogo({
           height={size}
           className={cn(
             "h-full w-full",
-            fit === "contain" ? "object-contain" : "object-cover",
+            effectiveFit === "contain" ? "object-contain" : "object-cover",
           )}
         />
       </div>
