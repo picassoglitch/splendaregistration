@@ -26,7 +26,7 @@ export function ConfigHydrate() {
     };
     run();
     // Poll so changes from Admin reflect in other browser contexts (including Incognito)
-    const t = window.setInterval(run, 2000);
+    const t = window.setInterval(run, 30_000);
     return () => {
       cancelled = true;
       window.clearInterval(t);

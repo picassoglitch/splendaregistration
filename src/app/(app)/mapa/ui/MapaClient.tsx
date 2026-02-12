@@ -19,7 +19,7 @@ export function MapaClient() {
       refresh().catch(() => undefined);
     };
     refresh().catch(() => undefined);
-    const t = window.setInterval(() => refresh().catch(() => undefined), 2000);
+    const t = window.setInterval(() => refresh().catch(() => undefined), 30_000);
     window.addEventListener(DATA_EVENT, onEvent as EventListener);
     return () => {
       cancelled = true;

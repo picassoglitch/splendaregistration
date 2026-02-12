@@ -38,7 +38,7 @@ export type AppConfig = {
 };
 
 export const DEFAULT_CONFIG: AppConfig = {
-  eventName: "Swat & Smart 2026",
+  eventName: "Sweet & Smart 2026",
   eventTag: "EVENTO",
   logoUrl: "/logo-sweet-smart-2026.png",
   logoStyle: "plain",

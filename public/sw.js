@@ -2,9 +2,23 @@
    Replace/extend with Workbox later if desired. */
 
 // Bump this to invalidate older caches on deploys.
-const CACHE_NAME = "ss2026-v6";
+const CACHE_NAME = "ss2026-v7";
 // Only cache immutable/static assets. Avoid caching HTML to prevent hydration mismatches after updates.
-const CORE_ASSETS = ["/splash.png"];
+const CORE_ASSETS = [
+  "/splash.png",
+  "/logo-sweet-smart-2026.png",
+  "/event-map.png",
+  "/outfit1day1f.png",
+  "/outfit1day1m.png",
+  "/outfit2day1f.png",
+  "/outfit2day1m.png",
+  "/outfit1day2f.png",
+  "/outfit1day2m.png",
+  "/outfit2day2f.png",
+  "/outfit2day2m.png",
+  "/outfit3day2f.png",
+  "/outfit3day2m.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -39,12 +53,6 @@ self.addEventListener("fetch", (event) => {
 
   // Never cache Next.js build assets (prevents broken deploys when chunk names change).
   if (url.pathname.startsWith("/_next/")) {
-    event.respondWith(fetch(req, { cache: "no-store" }));
-    return;
-  }
-
-  // Always fetch the latest map (avoid stale cached map image after deploy).
-  if (url.pathname === "/event-map.png") {
     event.respondWith(fetch(req, { cache: "no-store" }));
     return;
   }

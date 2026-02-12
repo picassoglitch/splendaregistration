@@ -17,18 +17,22 @@ function findInOverride(items: AgendaItem[] | null, id: string): AgendaItem | nu
 
 export function AgendaDetailClient({ id }: { id: string }) {
   const [override, setOverride] = useState<AgendaItem[] | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const refresh = async () => {
       const next = await fetchAgendaOverride();
-      if (!cancelled) setOverride(next);
+      if (!cancelled) {
+        setOverride(next);
+        setLoaded(true);
+      }
     };
     const onEvent = () => {
       refresh().catch(() => undefined);
     };
     refresh().catch(() => undefined);
-    const t = window.setInterval(() => refresh().catch(() => undefined), 2000);
+    const t = window.setInterval(() => refresh().catch(() => undefined), 30_000);
     window.addEventListener(DATA_EVENT, onEvent as EventListener);
     return () => {
       cancelled = true;
@@ -42,6 +46,15 @@ export function AgendaDetailClient({ id }: { id: string }) {
   }, [id, override]);
 
   if (!item) {
+    if (!loaded) {
+      return (
+        <Card className="p-5">
+          <div className="h-5 w-3/4 animate-pulse rounded bg-zinc-200" />
+          <div className="mt-4 h-4 w-1/2 animate-pulse rounded bg-zinc-200" />
+          <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-zinc-200" />
+        </Card>
+      );
+    }
     return (
       <Card className="p-5">
         <div className="text-[16px] font-extrabold text-zinc-900">No encontrado</div>

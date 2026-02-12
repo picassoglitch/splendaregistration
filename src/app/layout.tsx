@@ -8,6 +8,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SWRegister } from "@/components/pwa/SWRegister";
 import { ConfigHydrate } from "@/components/content/ConfigHydrate";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ConnectionStatus } from "@/components/ConnectionStatus";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,9 +56,10 @@ export default function RootLayout({
       >
         <div className="w-full min-h-dvh flex justify-center items-start bg-[#1C3D78] md:py-8 md:px-6 lg:py-12">
           <div className="w-full min-h-dvh bg-background text-foreground md:max-w-[430px] md:rounded-[24px] md:shadow-[0_10px_30px_rgba(0,0,0,0.12)] overflow-x-hidden md:max-h-[calc(100dvh-64px)] md:overflow-y-auto">
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
           </div>
         </div>
+        <ConnectionStatus />
         <SWRegister />
         <ConfigHydrate />
       </body>

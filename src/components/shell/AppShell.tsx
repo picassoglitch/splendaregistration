@@ -15,7 +15,7 @@ function titleForPath(pathname: string) {
   if (pathname === "/mapa") return "MAPA";
   if (pathname === "/admin") return "ADMIN";
   if (pathname === "/home") return "";
-  return "Swat & Smart 2026";
+  return "Sweet & Smart 2026";
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
