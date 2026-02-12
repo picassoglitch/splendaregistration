@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAppConfig } from "@/lib/content/useAppConfig";
 import { EventLogo } from "@/components/branding/EventLogo";
 
-/** Top-left logo button linking to /home. Single solid shape, no ghost.
+/** Top-left logo button linking to /home. Image fills circle via object-cover; no background so no ghost.
  * VISUAL CHECK: Agenda, Map, Dresscode @ 390px, 428px, 1024px. */
 export function HeaderLogoLink() {
   const cfg = useAppConfig();
@@ -12,7 +12,7 @@ export function HeaderLogoLink() {
     <Link
       href="/home"
       aria-label="Ir a inicio"
-      className="inline-flex shrink-0 overflow-hidden rounded-full bg-[#173A73]/90 ring-1 ring-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
+      className="inline-flex shrink-0 overflow-hidden rounded-full ring-1 ring-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
       style={{ width: 88, height: 88 }}
     >
       <EventLogo
@@ -20,7 +20,7 @@ export function HeaderLogoLink() {
         size={88}
         frame={false}
         fit="cover"
-        className="h-full w-full"
+        className="h-full w-full rounded-full"
       />
     </Link>
   );

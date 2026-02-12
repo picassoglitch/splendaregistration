@@ -34,7 +34,7 @@ export function EventLogo({
           height={size}
           className={cn(
             "h-full w-full",
-            effectiveFit === "contain" ? "object-contain" : "object-cover",
+            effectiveFit === "contain" ? "object-contain" : "object-cover object-center",
           )}
         />
       </div>

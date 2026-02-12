@@ -1,7 +1,7 @@
 import { DresscodeClient } from "@/app/(app)/dresscode/ui/DresscodeClient";
 
 export const metadata = {
-  title: "Dresscode",
+  title: "Dress Code",
 };
 
 export default function DresscodePage() {

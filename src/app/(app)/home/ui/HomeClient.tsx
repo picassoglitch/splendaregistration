@@ -70,7 +70,7 @@ export function HomeClient() {
             {(cfg.homeMapLabel || "MAPA").toUpperCase()}
           </button>
           <button type="button" className={btn} onClick={() => router.push("/dresscode")}>
-            {"DRESSCODE"}
+            {"DRESS CODE"}
           </button>
         </div>
 
