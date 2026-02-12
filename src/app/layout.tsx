@@ -33,6 +33,17 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon", type: "image/png" }],
     shortcut: [{ url: "/icon", type: "image/png" }],
   },
+  openGraph: {
+    title: "Sweet & Smart 2026",
+    description: "Event companion app para Sweet & Smart 2026.",
+    siteName: "Sweet & Smart 2026",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sweet & Smart 2026",
+    description: "Event companion app para Sweet & Smart 2026.",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

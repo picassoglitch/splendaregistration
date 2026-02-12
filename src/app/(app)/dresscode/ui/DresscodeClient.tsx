@@ -61,7 +61,6 @@ export const DRESSCODE_CONFIG: Record<DresscodeDayKey, DresscodeDayConfig> = {
   },
   "19": {
     outfits: [
-      { title: "BBQ", description: "", images: [] },
       { title: "Libre", description: "outfit de regreso", images: [] },
     ],
     showVerEjemplos: true,
