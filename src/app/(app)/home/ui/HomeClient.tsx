@@ -44,7 +44,7 @@ export function HomeClient() {
             size={308}
             fit={cfg.logoStyle !== "plain" ? "cover" : "contain"}
             frame={cfg.logoStyle !== "plain"}
-            className={cfg.logoStyle !== "plain" ? "rounded-full shadow-[0_26px_70px_rgba(0,0,0,0.35)]" : ""}
+            className={cfg.logoStyle !== "plain" ? "rounded-full" : ""}
           />
         </div>
 

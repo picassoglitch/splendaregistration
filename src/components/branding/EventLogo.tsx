@@ -21,7 +21,7 @@ export function EventLogo({
       <div
         className={cn(
           frame
-            ? "overflow-hidden rounded-2xl bg-transparent ring-1 ring-white/10 shadow-sm"
+            ? "overflow-hidden rounded-2xl bg-transparent"
             : "bg-transparent",
           className,
         )}

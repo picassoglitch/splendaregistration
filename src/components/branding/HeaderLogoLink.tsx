@@ -12,7 +12,7 @@ export function HeaderLogoLink() {
     <Link
       href="/home"
       aria-label="Ir a inicio"
-      className="inline-flex shrink-0 overflow-hidden rounded-full ring-1 ring-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
+      className="inline-flex shrink-0 overflow-hidden rounded-full"
       style={{ width: 88, height: 88 }}
     >
       <EventLogo
