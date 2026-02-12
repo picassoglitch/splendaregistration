@@ -13,6 +13,63 @@ const DRESSCODE_DAYS = [
 
 type DresscodeDayKey = (typeof DRESSCODE_DAYS)[number]["key"];
 
+export type DresscodeOutfit = {
+  title: string;
+  description: string;
+  images: string[];
+};
+
+export type DresscodeDayConfig = {
+  outfits: DresscodeOutfit[];
+  showVerEjemplos?: boolean;
+};
+
+/** Single source of truth: day -> outfits -> title, description, images. */
+export const DRESSCODE_CONFIG: Record<DresscodeDayKey, DresscodeDayConfig> = {
+  "17": {
+    outfits: [
+      {
+        title: "Outfit 1",
+        description: "Jeans y Camisa / Blusa blanca",
+        images: ["/outfit1day1f.png", "/outfit1day1m.png"],
+      },
+      {
+        title: "Outfit 2",
+        description: "Cena ALL BLACK NO TACONES",
+        images: ["/outfit2day1f.png", "/outfit2day1m.png"],
+      },
+    ],
+  },
+  "18": {
+    outfits: [
+      {
+        title: "Outfit 1",
+        description: "Ropa y tenis deportivos",
+        images: ["/outfit1day2f.png", "/outfit1day2m.png"],
+      },
+      {
+        title: "Outfit 2",
+        description: "Business casual",
+        images: ["/outfit2day2f.png", "/outfit2day2m.png"],
+      },
+      {
+        title: "Outfit 3",
+        description: "",
+        images: ["/outfit3day2f.png", "/outfit3day2m.png"],
+      },
+    ],
+  },
+  "19": {
+    outfits: [
+      { title: "BBQ", description: "", images: [] },
+      { title: "Libre", description: "outfit de regreso", images: [] },
+    ],
+    showVerEjemplos: true,
+  },
+};
+
+const VER_EJEMPLOS_URL = "https://pin.it/4RlV1Ceg0";
+
 /** Same visual pattern as Agenda DayToggle: rounded pill, circle + label, one active. */
 function DayToggle({
   value,
@@ -63,45 +120,37 @@ function DayToggle({
   );
 }
 
-const DAY_CONTENT: Record<
-  DresscodeDayKey,
-  { items: { title: string; text: string }[]; images: string[]; showVerMas?: boolean }
-> = {
-  "17": {
-    items: [
-      { title: "Outfit 1", text: "Jeans y Camisa / Blusa blanca" },
-      { title: "Outfit 2", text: "Cena ALL BLACK" },
-    ],
-    images: ["/outfit1day1.png", "/outfit2day1.png"],
-  },
-  "18": {
-    items: [
-      { title: "Outfit 1", text: "Ropa y tenis deportivos" },
-      { title: "Outfit 2", text: "Business casual" },
-    ],
-    images: ["/outfit1day2.png", "/outfit2day2.png"],
-  },
-  "19": {
-    items: [
-      { title: "BBQ", text: "" },
-      { title: "Libre", text: "outfit de regreso" },
-    ],
-    images: ["/outfit1day3.png"],
-    showVerMas: true,
-  },
-};
-
-const VER_MAS_URL = "https://pin.it/4RlV1Ceg0";
+/** Responsive image with fallback placeholder to avoid layout shift. */
+function OutfitImage({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <div className="relative aspect-[4/5] min-h-[180px] w-full overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
+      {failed ? (
+        <div className="flex h-full w-full items-center justify-center rounded-2xl bg-white/5 text-[12px] font-semibold text-white/50">
+          Imagen no disponible
+        </div>
+      ) : (
+        <Image
+          src={src}
+          alt=""
+          fill
+          className="object-cover object-center"
+          sizes="(max-width: 640px) 100vw, 50vw"
+          onError={() => setFailed(true)}
+        />
+      )}
+    </div>
+  );
+}
 
 /*
  * VISUAL REGRESSION CHECKLIST (dresscode):
- * - Mobile 390px: 1-col stack, readable, no horizontal scroll
- * - Tablet 768px: images side by side where applicable
- * - Desktop 1024px: centered, max-width, no layout shift
+ * - Mobile 390px: 1-col stack, no horizontal scroll
+ * - Tablet/Desktop: 2-col image grid, consistent with Agenda
  */
 export function DresscodeClient() {
-  const [day, setDay] = useState<DresscodeDayKey>("17");
-  const content = DAY_CONTENT[day];
+  const [selectedDay, setSelectedDay] = useState<DresscodeDayKey>("17");
+  const config = DRESSCODE_CONFIG[selectedDay];
 
   return (
     <div className="min-h-dvh text-white">
@@ -116,7 +165,7 @@ export function DresscodeClient() {
           <div className="w-[88px]" />
         </div>
 
-        {/* Hero section */}
+        {/* Header: Save the date */}
         <div className="mt-6 text-center">
           <div className="text-[18px] font-extrabold tracking-[0.08em] text-white sm:text-[22px]">
             SAVE THE DATE
@@ -132,69 +181,53 @@ export function DresscodeClient() {
           </div>
         </div>
 
-        {/* Date selector (Agenda-style) */}
+        {/* Day selector (Agenda-style) */}
         <div className="mt-6">
-          <DayToggle value={day} onChange={setDay} />
+          <DayToggle value={selectedDay} onChange={setSelectedDay} />
         </div>
 
-        {/* Dynamic content per day */}
+        {/* Dynamic content from config */}
         <div className="mt-8 rounded-[26px] bg-[#173A73]/85 shadow-[0_22px_60px_rgba(0,0,0,0.3)] ring-1 ring-white/15 overflow-hidden">
           <div className="p-5 sm:p-6">
             <div className="mb-4 text-center">
               <span className="inline-flex h-9 items-center rounded-full bg-white/10 px-4 text-[13px] font-extrabold tracking-[0.10em] ring-1 ring-white/20">
-                Día {day}
+                Día {selectedDay}
               </span>
             </div>
 
-            {/* Text cards */}
-            <div className="space-y-3">
-              {content.items.map((item, idx) => (
-                <div
-                  key={`${day}-${idx}-${item.title}`}
-                  className="min-w-0 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15"
-                >
+            {config.outfits.map((outfit, outfitIdx) => (
+              <div key={`${selectedDay}-${outfitIdx}-${outfit.title}`} className="mb-6 last:mb-0">
+                {/* Outfit card: title + description */}
+                <div className="min-w-0 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15">
                   <div className="text-[12px] font-extrabold tracking-[0.10em] text-white/90">
-                    {item.title}
+                    {outfit.title}
                   </div>
-                  {item.text ? (
+                  {outfit.description ? (
                     <div className="mt-1 break-words text-[13px] font-semibold leading-snug text-white">
-                      {item.text}
+                      {outfit.description}
                     </div>
                   ) : null}
                 </div>
-              ))}
-            </div>
 
-            {/* Images: side by side on desktop, stacked on mobile */}
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {content.images.map((src, idx) => (
-                <div
-                  key={`${day}-img-${idx}`}
-                  className="relative aspect-[4/5] min-h-[200px] w-full overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg"
-                >
-                  <Image
-                    src={src}
-                    alt=""
-                    fill
-                    className="object-cover object-center"
-                    sizes="(max-width: 640px) 100vw, 50vw"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
+                {/* Images: responsive grid (2 cols desktop, 1 col mobile) */}
+                {outfit.images.length > 0 ? (
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {outfit.images.map((src) => (
+                      <OutfitImage key={src} src={src} />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ))}
 
-            {/* Ver más ejemplos (Day 19 only) */}
-            {content.showVerMas ? (
+            {config.showVerEjemplos ? (
               <a
-                href={VER_MAS_URL}
+                href={VER_EJEMPLOS_URL}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="mt-6 flex w-full items-center justify-center rounded-2xl bg-white/15 py-3 text-[13px] font-extrabold text-white ring-1 ring-white/20 transition hover:bg-white/20 active:scale-[0.99]"
               >
-                Ver más ejemplos
+                Ver ejemplos
               </a>
             ) : null}
           </div>
