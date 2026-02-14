@@ -13,7 +13,7 @@ export function HomeClient() {
   const router = useRouter();
 
   const btn =
-    "h-[88px] w-full rounded-[22px] bg-[#FFE45A] text-[#F3A12A] text-[26px] font-extrabold tracking-wide shadow-[0_18px_40px_rgba(0,0,0,0.18)]";
+    "h-[88px] sm:h-[100px] w-full rounded-[22px] bg-[#FFE45A] text-[#F3A12A] text-[26px] font-extrabold tracking-wide shadow-[0_18px_40px_rgba(0,0,0,0.18)]";
   return (
     <div
       className={cn(
@@ -22,7 +22,7 @@ export function HomeClient() {
         "text-white",
       )}
     >
-      <div className="mx-auto flex min-h-dvh max-w-[420px] flex-col items-center">
+      <div className="mx-auto flex min-h-dvh max-w-[420px] sm:max-w-2xl lg:max-w-4xl flex-col items-center">
         <div className="flex w-full items-center justify-end pt-1">
           <button
             type="button"
@@ -62,12 +62,15 @@ export function HomeClient() {
           ) : null}
         </div>
 
-        <div className="mt-10 w-full space-y-6">
+        <div className="mt-10 w-full grid grid-cols-1 gap-6 sm:grid-cols-2">
           <button type="button" className={btn} onClick={() => router.push("/agenda")}>
             {(cfg.homeAgendaLabel || "AGENDA").toUpperCase()}
           </button>
           <button type="button" className={btn} onClick={() => router.push("/mapa")}>
             {(cfg.homeMapLabel || "MAPA").toUpperCase()}
+          </button>
+          <button type="button" className={btn} onClick={() => router.push("/breakoutroom")}>
+            {"BREAKOUT ROOM"}
           </button>
           <button type="button" className={btn} onClick={() => router.push("/dresscode")}>
             {"DRESS CODE"}

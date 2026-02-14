@@ -29,7 +29,7 @@ export function MapaView({ points }: { points: MapPoint[] }) {
 
   return (
     <div className="min-h-dvh text-white">
-      <div className="px-6 pt-[max(26px,var(--sat))]">
+      <div className="px-6 sm:px-10 lg:px-16 pt-[max(26px,var(--sat))]">
         <div className="flex items-center justify-between">
           <HeaderLogoLink />
           <div className="flex-1 text-center">
@@ -37,11 +37,11 @@ export function MapaView({ points }: { points: MapPoint[] }) {
               {cfg.mapPageHeading || "MAPA"}
             </div>
           </div>
-          <div className="w-[88px]" />
+          <div className="w-16 sm:w-[88px]" />
         </div>
 
         {/* Map (image + pinch-to-zoom + pan) */}
-        <div className="mt-8 rounded-[26px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.25)] overflow-hidden">
+        <div className="mt-8 mx-auto max-w-2xl rounded-[26px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.25)] overflow-hidden">
           <InteractiveMap
             key={MAP_IMAGE_SRC}
             imageSrc={MAP_IMAGE_SRC}

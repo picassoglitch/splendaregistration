@@ -79,7 +79,7 @@ function DayToggle({
 }) {
   return (
     <div
-      className="mx-auto w-[calc(100%-28px)] max-w-[402px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
+      className="mx-auto w-[calc(100%-28px)] max-w-[402px] sm:max-w-lg rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
       role="tablist"
       aria-label="Días dress code"
     >
@@ -153,7 +153,7 @@ export function DresscodeClient() {
 
   return (
     <div className="min-h-dvh text-white">
-      <div className="mx-auto max-w-[420px] px-6 pt-[max(26px,var(--sat))] pb-10">
+      <div className="mx-auto max-w-[420px] sm:max-w-2xl lg:max-w-3xl px-6 sm:px-10 pt-[max(26px,var(--sat))] pb-10">
         <div className="flex items-center justify-between">
           <HeaderLogoLink />
           <div className="flex-1 text-center">
@@ -161,7 +161,7 @@ export function DresscodeClient() {
               DRESS CODE
             </div>
           </div>
-          <div className="w-[88px]" />
+          <div className="w-16 sm:w-[88px]" />
         </div>
 
         {/* Header: Save the date */}

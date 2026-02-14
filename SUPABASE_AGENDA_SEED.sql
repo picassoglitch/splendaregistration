@@ -4,7 +4,7 @@
 insert into public.agenda_items
   (id, title, day, start_time, end_time, track, location, description)
 values
-  ('plenario-apertura','Apertura · Swat & Smart 2026','2026-01-30','09:00','09:30','Plenario','Salón 1','Bienvenida oficial y overview del día. Presentación de agenda, logística y mensajes clave del evento.
+  ('plenario-apertura','Apertura · Sweet & Smart 2026','2026-01-30','09:00','09:30','Plenario','Salón 1','Bienvenida oficial y overview del día. Presentación de agenda, logística y mensajes clave del evento.
 
 Sugerencia: llega 10 min antes para registro y ubicación.'),
   ('expo-keynote','Keynote · Tendencias y casos de éxito','2026-01-30','09:30','10:15','Expositores','Salón 1','Una sesión inspiradora con aprendizajes prácticos y ejemplos reales.

@@ -110,15 +110,15 @@ export default function UnlockPage() {
         </div>
       ) : null}
       {/* blobs like the mock */}
-      <Blob className="-left-44 -top-36 h-[380px] w-[380px]" color="yellow" />
-      <Blob className="-right-44 -bottom-44 h-[420px] w-[420px]" color="yellow" />
-      <Blob className="-left-44 -bottom-44 h-[420px] w-[420px]" color="cyan" />
-      <Blob className="-right-44 top-[38%] h-[380px] w-[380px]" color="cyan" />
+      <Blob className="-left-44 -top-36 h-[380px] w-[380px] lg:h-[500px] lg:w-[500px]" color="yellow" />
+      <Blob className="-right-44 -bottom-44 h-[420px] w-[420px] lg:h-[540px] lg:w-[540px]" color="yellow" />
+      <Blob className="-left-44 -bottom-44 h-[420px] w-[420px] lg:h-[540px] lg:w-[540px]" color="cyan" />
+      <Blob className="-right-44 top-[38%] h-[380px] w-[380px] lg:h-[500px] lg:w-[500px]" color="cyan" />
 
       {/* inner navy "wave" */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-[84px] mx-auto h-[calc(100%-168px)] w-[92%] bg-[#173A73]"
+        className="absolute inset-x-0 top-[84px] mx-auto h-[calc(100%-168px)] w-[92%] max-w-2xl bg-[#173A73]"
         style={{ borderRadius: "44px" }}
       />
 
@@ -132,7 +132,7 @@ export default function UnlockPage() {
           />
         </div>
 
-        <div className="mt-10 w-full">
+        <div className="mt-10 w-full max-w-md mx-auto">
           <label className="sr-only" htmlFor="unlock-pass">
             Contraseña
           </label>

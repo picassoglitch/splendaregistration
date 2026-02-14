@@ -16,7 +16,7 @@ function DayToggle({
 }) {
   return (
     <div
-      className="mx-auto w-[calc(100%-28px)] max-w-[402px] rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
+      className="mx-auto w-[calc(100%-28px)] max-w-[402px] sm:max-w-lg rounded-[26px] bg-[#173A73]/80 px-5 py-4 ring-1 ring-white/15 backdrop-blur-md"
       role="tablist"
       aria-label="Días de agenda"
     >
@@ -76,18 +76,18 @@ export function AgendaClient() {
 
   return (
     <div className="min-h-dvh text-white">
-      <div className="px-6 pt-[max(26px,var(--sat))]">
+      <div className="px-6 sm:px-10 lg:px-16 pt-[max(26px,var(--sat))]">
         <div className="flex items-center justify-between">
           <HeaderLogoLink />
           <div className="flex-1 text-center">
-            <div className="text-[34px] font-extrabold tracking-[0.06em]">
+            <div className="text-[34px] lg:text-[40px] font-extrabold tracking-[0.06em]">
               {cfg.agendaTitle || "AGENDA"}
             </div>
             <div className="mt-1 text-[18px] font-semibold text-white/90">
               {dayLabel}
             </div>
           </div>
-          <div className="w-[88px]" />
+          <div className="w-16 sm:w-[88px]" />
         </div>
 
         {/* Day buttons (top) */}
@@ -104,7 +104,7 @@ export function AgendaClient() {
         <div className="mt-8">
           {/* Desktop/tablet table */}
           <div className="hidden md:block">
-            <div className="grid grid-cols-[180px_110px_1fr_170px] gap-3 px-2 text-[12px] font-bold tracking-[0.12em] text-white/70">
+            <div className="grid grid-cols-[140px_90px_1fr_140px] lg:grid-cols-[180px_110px_1fr_170px] gap-3 px-2 text-[12px] font-bold tracking-[0.12em] text-white/70">
               <div>HORARIO</div>
               <div>DURACIÓN</div>
               <div>ACTIVIDAD</div>
@@ -115,7 +115,7 @@ export function AgendaClient() {
                 items.map((it, idx) => (
                   <div
                     key={`${day}-${idx}-${it.start}-${it.activity}`}
-                    className="grid grid-cols-[180px_110px_1fr_170px] items-start gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15"
+                    className="grid grid-cols-[140px_90px_1fr_140px] lg:grid-cols-[180px_110px_1fr_170px] items-start gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15"
                   >
                     <div className="text-[14px] font-extrabold text-white">{displayTime(it.start, it.end)}</div>
                     <div className="text-[13px] font-semibold text-white/90">{it.duration}</div>

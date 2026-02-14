@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Sweet & Smart 2026",
     short_name: "Sweet & Smart",
-    description: "Event companion app para Sweet & Smart 2026.",
+    description: "Your favorite companion app for any event.",
     start_url: "/",
     display: "standalone",
     background_color: "#f4f5f7",

@@ -49,7 +49,7 @@ export function MapBottomSheet({
         <Dialog.Content
           className={cn(
             "fixed inset-x-0 bottom-0 z-50 w-full",
-            "md:left-1/2 md:max-w-[430px] md:-translate-x-1/2",
+            "sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2",
             "rounded-t-[28px] bg-white shadow-2xl ring-1 ring-black/10",
           )}
           style={{ transform: dragY ? `translateY(${dragY}px)` : undefined, touchAction: "none" }}

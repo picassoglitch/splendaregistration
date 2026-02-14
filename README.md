@@ -1,4 +1,4 @@
-## Swat & Smart 2026 · Event Companion PWA
+## Sweet & Smart 2026 · Event Companion PWA
 
 Production-style mobile-first PWA (Next.js App Router + TypeScript + Tailwind) designed to feel like a native iOS/Android app.
 

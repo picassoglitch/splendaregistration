@@ -5,7 +5,7 @@ import { join } from "node:path";
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Sweet & Smart 2026 – Event companion app";
+export const alt = "Sweet & Smart 2026 – Your favorite companion app for any event";
 
 export default async function OGImage() {
   const logoData = await readFile(
@@ -43,7 +43,7 @@ export default async function OGImage() {
             margin: 0,
           }}
         >
-          Event companion app
+          Your favorite companion app for any event
         </p>
       </div>
     ),

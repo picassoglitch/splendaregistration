@@ -82,6 +82,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ? "mapa"
             : pathname === "/dresscode"
               ? "home"
+              : pathname === "/breakoutroom"
+                ? "home"
           : pathname === "/admin"
             ? "admin"
             : null;
@@ -99,7 +101,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           )}
           style={{ paddingTop: "max(10px, var(--sat))" }}
         >
-          <div className="flex h-14 items-center gap-3 px-2">
+          <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-2 sm:px-6">
             <div className="flex w-12 items-center justify-start">
               {isDetail ? (
                 <button
@@ -167,13 +169,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             : undefined
         }
       >
-        <div className="relative">{children}</div>
+        <div className="relative mx-auto max-w-5xl">{children}</div>
       </main>
 
       {pathname === "/admin" ? (
         <nav
           className={cn(
-            "fixed bottom-0 left-1/2 z-30 w-full md:max-w-[430px] -translate-x-1/2",
+            "fixed bottom-0 left-1/2 z-30 w-full max-w-3xl -translate-x-1/2",
             "bg-background/85 backdrop-blur-md border-t border-border",
           )}
           style={{
