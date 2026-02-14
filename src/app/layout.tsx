@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   },
   description: "Your favorite companion app for any event.",
   applicationName: "Sweet & Smart 2026",
+  verification: {
+    google: "F7iPvrcJqz-G68jUuYRvv_QsAOOpEokjU5kTacZsbHo",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32", type: "image/png" },
