@@ -7,7 +7,7 @@ export type TeamInfo = {
 };
 
 export const TEAMS: TeamInfo[] = [
-  { key: "equipo1", label: "Equipo 1", salon: "Ludoteca" },
+  { key: "equipo1", label: "Equipo 1", salon: "Fantasía" },
   { key: "equipo2", label: "Equipo 2", salon: "Fantasía" },
   { key: "equipo3", label: "Equipo 3", salon: "Inmersódromo" },
   { key: "equipo4", label: "Equipo 4", salon: "Floripondios" },
@@ -26,7 +26,7 @@ export const TEAM_MEMBERS: Record<TeamKey, string[]> = {
     "Lila Ramirez",
     "Marco Morales",
     "Miguel Jaramillo",
-    "Open Position",
+    "Andrea Marín",
     "Oscar Garcia",
     "Reina Martinez",
     "Yazmin Rubio",
@@ -92,12 +92,12 @@ export type BreakoutRoom = {
 export const BREAKOUT_ROOMS: BreakoutRoom[] = [
   {
     name: "El Juego del Endulzar",
-    salon: "LUDOTECA",
+    salon: "Fantasía",
     location: "XXXX",
   },
   {
     name: "La Casa de los Sobres",
-    salon: "Senderos",
+    salon: "Arcadas",
     location: "Entre la alberca y el restaurante Recuerdos",
   },
   {
